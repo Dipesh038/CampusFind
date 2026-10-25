@@ -181,3 +181,82 @@ Record HTTP 200 for the HTTPS homepage and JSON health, its exact release SHA, F
 Next stage: **CF-12**, only after a separate stage prompt. Do not start it automatically.
 
 CF-11 acceptance evidence (2026-10-25): [deployment PR #3](https://github.com/Dipesh038/CampusFind/pull/3) and [main run 40191731669](https://github.com/Dipesh038/CampusFind/actions/runs/40191731669) passed test → package → deploy for `fd13999e8a7319ac49be320907a7a064f8841083`. [Independent read-only verification](https://github.com/Dipesh038/CampusFind/actions/runs/40192225863) confirmed the exact live SHA, the new homepage footer and the original fictional report after deployment. [Negative-test PR #4](https://github.com/Dipesh038/CampusFind/pull/4) produced the expected failed test and skipped package/deploy, was restored, and was closed unmerged. HTTPS redirect, registration/login, secure cookies and Reload persistence were verified. Live automatic rollback was not deliberately exercised; recovery testing is simulated. Subsequent reviewed main commits produce their own tested release/artifact/health SHA.
+
+## CF-12 final audit and submission
+
+The implemented academic project passes the CF-12 technical audit. Final documentation is delivered through a separate PR; institutional submission and host maintenance are manual. The audited release is `0d2a848a91ba9605dfd2a072e47837f6bae6041a` at [the live site](https://zainmalik.pythonanywhere.com), with [JSON health](https://zainmalik.pythonanywhere.com/health). The fresh [read-only production audit](https://github.com/Dipesh038/CampusFind/actions/runs/40193172879) passed on 2026-10-25, including the original fictional report still present after both CF-11 deployments. See `PROJECT_STATUS.md` for commands, exact results, scope and limitations. A later accepted documentation merge will produce a new normal deployment SHA; compare health with that run rather than expecting the audited SHA forever.
+
+### Demonstration instructions
+
+For a **read-only live demonstration**:
+
+1. Open the homepage over HTTPS and show the delivered footer. Browse reports and apply the found/open filter without changing records.
+2. Open `/health`; explain that HTTP 200 and `status=ok` mean database connectivity, while `release` identifies the tested deployed source. Show the matching main Actions run and its three successful jobs.
+3. Show `/items/3`, the existing fictional CF-11 persistence report. Use its earlier and current evidence to demonstrate persistence; do not restart production or create/delete hosted records for this audit.
+4. Open a private page while signed out to demonstrate the login redirect. Explain claimant-only evidence and administrator review using the isolated test/demo flow below, not real ownership evidence.
+5. Show the successful deployment PR/run, the restored and closed negative-test PR, and the dated Kanban transitions. Do not display account tokens, environment values, private logs or real claim details.
+
+For a **full interactive rehearsal**, use a new local disposable database. These are instructions, not additional production operations performed by CF-12. In a fresh project terminal:
+
+```sh
+CF12_DEMO_DIR=$(mktemp -d)
+env APP_ENV=development DATABASE="$CF12_DEMO_DIR/demo.sqlite" .venv/bin/python -m flask --app campusfind init-db
+env APP_ENV=development DATABASE="$CF12_DEMO_DIR/demo.sqlite" .venv/bin/python -m flask --app campusfind create-admin
+env APP_ENV=development DATABASE="$CF12_DEMO_DIR/demo.sqlite" .venv/bin/python -m flask --app campusfind run --port 5056
+```
+
+Keep the same generated directory for all three commands. The admin command prompts privately; use fictional demo identity/passwords and never reuse production credentials. Visit `http://127.0.0.1:5056` in separate browser sessions:
+
+1. Register two fictional students. Student A creates a found-item report; Student B submits fictional private ownership evidence.
+2. Show that public visitors and Student A cannot read Student B's proof. In Student B's session, show My Claims.
+3. Sign in as the local administrator, approve with a fictional explanation, then explicitly confirm handover. Show the claimed → returned transition. Do not share private evidence in the explanation.
+4. Have Student A create/edit/close a separate lost report. Show validation and a search/filter result.
+5. Stop the server with Ctrl-C, restart with the same `DATABASE`, and show the same local reports remain. Stop again when finished. Keep any rehearsal screenshots fictional; do not remove a real database during cleanup.
+
+The existing full-journey test covers these transitions against a temporary database. No production write is needed to rehearse them.
+
+### Final submission checklist
+
+- [x] Application source, additive SQLite schema, responsive templates and pinned dependencies are in the repository.
+- [x] Python 3.12.15 local dependency check and all **88 tests** passed in the CF-12 audit; all 16 Jinja templates compiled.
+- [x] [Main CI/CD evidence](https://github.com/Dipesh038/CampusFind/actions/runs/40192530150) proves test → package → deploy at the audited SHA.
+- [x] The downloaded deployed artifact has exactly 27 regular allowlisted members, correct metadata and 26 source files matching the commit byte for byte.
+- [x] Fresh external GET checks prove trusted HTTPS, exact health release, secure cookie flags, redirects, private-page access rules and retained fictional data.
+- [x] The restored [negative-test PR #4](https://github.com/Dipesh038/CampusFind/pull/4) records failed tests and skipped downstream jobs without breaking main.
+- [x] Tracked paths/history were checked for common secret/key patterns; no runtime database/environment/cache/virtualenv is tracked or packaged. The ten exact dependency pins had no matching non-withdrawn reviewed GitHub advisories at audit time; this is not a permanent security guarantee.
+- [x] README covers setup, production structure, operations, recovery, demonstration and free-host renewal; `PROJECT_STATUS.md` holds stage evidence and limitations.
+- [x] `KANBAN.md` records WIP limit 2, acceptance criteria and actual blocker/rework/testing/done transitions. No unrecorded Scrum ceremonies or peer approvals are claimed.
+- [ ] Human review/acceptance of the CF-12 documentation PR, followed by merge and verification of its normal main deployment if accepted.
+- [ ] Institution-specific submission of repository URL, live URL and evidence links; any required presentation, author/course information or screenshots must be supplied truthfully and without private data.
+
+### Exact remaining manual actions and limitations
+
+1. **Review and merge the CF-12 documentation PR if accepted.** Its PR test must pass; package/deploy must remain skipped on the PR. A merge triggers the existing main CD workflow. Wait for all three jobs and compare health with the merge SHA. This audit does not silently activate an unreviewed documentation branch.
+2. **Submit the project through the institution's required process.** Use the links/checklist above. If formal Scrum evidence is required, supply real sprint/team/retrospective records or explain the evidenced Kanban process; no such records were fabricated here.
+3. **Maintain the free host.** Check the Web tab's current expiry and click Run until 1 month from today before expiry. The last observed expiry was **25 November 2026**; CF-12 did not access private account settings to recheck it. CD reloads do not replace manual renewal.
+4. **Check private host permissions without displaying contents.** In the owner's private PythonAnywhere console, this read-only command reports only ownership/privacy booleans:
+
+   ```sh
+   python3.12 - <<'PY'
+   import os
+   import stat
+   from pathlib import Path
+   targets = {
+       'environment file': Path('/home/ZainMalik/.config/campusfind.env'),
+       'environment directory': Path('/home/ZainMalik/.config'),
+       'database file': Path('/home/ZainMalik/campusfind-data/campusfind.sqlite'),
+       'database directory': Path('/home/ZainMalik/campusfind-data'),
+   }
+   for label, path in targets.items():
+       metadata = path.stat()
+       print(label, 'owned_by_account=', metadata.st_uid == os.getuid(),
+             'owner_only=', stat.S_IMODE(metadata.st_mode) & 0o077 == 0)
+   PY
+   ```
+
+   Expected protection is owner-only environment/database files and directories, with the database directory writable by the application for journals. CF-12 did not execute this private check or change permissions. If it fails, arrange a separate authorized correction; never print the environment file or database rows into the submission.
+5. **Arrange protected, consistent SQLite backups and a separately authorized recovery rehearsal.** Code rollback never restores the database. Live automatic rollback, data restore and disaster recovery remain unverified; no unsafe test is required for this final audit.
+6. **Consider enforcing PR/status-check protection on main.** The branch API reports `protected=false`; the recorded PR process is currently a convention. No repository permissions, account secrets or protection settings were modified by CF-12.
+7. **Keep the unrelated homepage formatting edit separate.** It remains uncommitted and undeployed; include it only under separate authorization.
+
+Other disclosed limits: no email verification, password recovery, photo upload, automated matching or login rate limiting; no comprehensive browser security-header policy, load test or production security certification; single-worker/SQLite capacity; no automatic schema migration or dependency/virtualenv update; bounded API failures and interrupted jobs can need manual recovery. Deployment concurrency prevents overlap but does not impose commit ordering or an explicit stale-main check. The audit queried current reviewed advisories, not every vulnerability source. All production data and secret values were left untouched. No further implementation stage begins automatically.
