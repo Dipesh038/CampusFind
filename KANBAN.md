@@ -1,7 +1,7 @@
 # CampusFind Kanban
 
-Updated (UTC): 2026-10-25T06:43:55Z
-**In Progress WIP limit: 2**. Current WIP: 1.
+Updated (UTC): 2026-10-25T06:46:35Z
+**In Progress WIP limit: 2**. Current WIP: 0.
 
 ## Backlog
 
@@ -16,13 +16,13 @@ These are planning labels, not permission to begin later stages.
 
 ## To Do
 
-No cards.
+| Card | Status | Remaining acceptance criteria |
+| --- | --- | --- |
+| CF-08 | BLOCKED: existing repository URL and working GitHub authentication needed | Inspect empty destination, connect origin, push local main, verify matching remote SHA |
 
 ## In Progress
 
-| Card | Current work | Acceptance criteria |
-| --- | --- | --- |
-| CF-08 | Review submission contents, create first local milestone commit, connect and verify GitHub | Explicit safe staging and clean diff; Kanban review; local commit; successful push and matching remote main SHA |
+No cards.
 
 ## Testing
 
@@ -85,3 +85,6 @@ No cards.
 | 2026-10-25 | CF-08 | Backlog → In Progress | Inspected stage prompt, source inventory, README, `.gitignore`, Git state, and existing board. No commits or remote; existing GitHub CLI login is invalid. |
 | 2026-10-25 | CF-08 | Kanban evidence review | The recorded CF-01 Python 3.12 blocker kept its card out of Done until the required interpreter, install, tests, and live checks passed. This prevented preparation alone from being reported as an accepted stage. CF-02's recorded email-normalization rework likewise moved the card back from Testing before its corrected checks passed. No earlier transition was reconstructed during this review. |
 | 2026-10-25 | CF-08 | Staged review and rework | Explicit staging selected 39 intended files. `git diff --cached --check` found four trailing-space lines in the trackers; removed the spaces before repeating the staged check. |
+| 2026-10-25 | CF-08 | In Progress → Testing | Repeated staged check passed; staged audit found 25 application files, 9 tests, 5 root files, no unexpected paths or credential-shaped content; 79 tests passed. |
+| 2026-10-25 | CF-08 | Testing → In Progress | First honest local milestone commit `82664faf4a75ad0fda77e4174e67503dd635f34b` succeeded; immediate working tree was clean. No older stage commits were fabricated. |
+| 2026-10-25 | CF-08 | In Progress → To Do (BLOCKED) | User selected an existing empty GitHub repository but its URL was not supplied. `gh auth status` reports invalid login, and no remote exists. Push and remote SHA verification remain unrun; CF-08 acceptance is incomplete. |
