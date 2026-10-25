@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ item['title'] }} · CampusFind{% endblock %}
+{% block content %}
+  <p class="back-link"><a href="{{ url_for('items.browse') }}">← Back to reports</a></p>
+  <div class="detail-layout">
+    <article class="card detail-card">
+      <div class="badge-row"><span class="badge badge-type badge-{{ item['report_type'] }}">{{ item['report_type']|capitalize }}</span><span class="badge badge-status badge-status-{{ item['status'] }}">{{ item['status']|capitalize }}</span></div>
+      <h1>{{ item['title'] }}</h1>
+      <p class="timestamp">Reported: {{ item['created_at'] }} UTC</p>
+      <h2>About this report</h2>
+      <p class="preserve-lines">{{ item['description'] }}</p>
+      <dl class="detail-meta">
+        <div><dt>Category</dt><dd>{{ item['category'] }}</dd></div>
+        <div><dt>Campus location</dt><dd>{{ item['location'] }}</dd></div>
+        <div><dt>Event date</dt><dd>{{ item['event_date'] }}</dd></div>
+        <div><dt>Report type</dt><dd>{{ item['report_type']|capitalize }}</dd></div>
+        <div><dt>Status</dt><dd>{{ item['status']|capitalize }}</dd></div>
+      </dl>
+    </article>
+    <aside class="detail-actions">
+      {% if can_edit or can_close %}
+        <section class="card action-card" aria-labelledby="manage-report">
+          <h2 id="manage-report">Manage your report</h2>
+          {% if can_edit %}
+            <a class="button button-secondary" href="{{ url_for('items.edit', item_id=item['id']) }}">Edit report</a>
+            <form class="confirmation-form" method="post" action="{{ url_for('items.delete', item_id=item['id']) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <label class="checkbox-label" for="confirm_delete"><input id="confirm_delete" name="confirm_delete" type="checkbox" value="yes" required><span>I confirm this report will be permanently deleted.</span></label>
+              <button class="button button-danger" type="submit">Delete report</button>
+            </form>
+          {% endif %}
+          {% if can_close %}
+            <form class="confirmation-form" method="post" action="{{ url_for('items.close', item_id=item['id']) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <p>Only close this lost report when it has been resolved.</p>
+              <button class="button button-secondary" type="submit">Close lost report</button>
+            </form>
+          {% endif %}
+        </section>
+      {% endif %}
+      {% if claim_form %}
+        <section class="card action-card" aria-labelledby="claim-heading">
+          <h2 id="claim-heading">Claim this found item</h2>
+          <p>Your ownership evidence is shown only to you and administrators.</p>
+          <form class="stacked-form" method="post" action="{{ url_for('claims.submit', item_id=item['id']) }}">
+            {{ claim_form.csrf_token }}
+            <div class="form-field">
+              <label for="{{ claim_form.proof_text.id }}">Evidence that this item is yours <span class="required">Required</span></label>
+              {{ claim_form.proof_text(minlength="20", maxlength="2000", required=true, aria_invalid='true' if claim_form.proof_text.errors else 'false', aria_describedby='proof-help proof-error' if claim_form.proof_text.errors else 'proof-help') }}
+              <p id="proof-help" class="field-help">20–2000 characters. Include details that help identify the item without posting contact information.</p>
+              {% for error in claim_form.proof_text.errors %}<p id="proof-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+            {{ claim_form.submit(class="button button-primary") }}
+          </form>
+        </section>
+      {% elif claim_message %}
+        <section class="card action-card"><h2>Claim status</h2><p>{{ claim_message }}</p></section>
+      {% endif %}
+    </aside>
+  </div>
+{% endblock %}

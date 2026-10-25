@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Bad request · CampusFind{% endblock %}
+{% block content %}
+  <section class="card error-card" aria-labelledby="error-title">
+    <p class="eyebrow">Error 400</p>
+    <h1 id="error-title">Check your request</h1>
+    <p>{{ message }}</p>
+    <a class="button button-secondary" href="{{ url_for('main.index') }}">Go to homepage</a>
+  </section>
+{% endblock %}

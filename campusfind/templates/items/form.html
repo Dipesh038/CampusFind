@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }} · CampusFind{% endblock %}
+{% block content %}
+  <p class="back-link"><a href="{{ url_for('items.mine') }}">← My Reports</a></p>
+  <section class="form-card card">
+    <p class="eyebrow">Lost and found</p>
+    <h1>{{ heading }}</h1>
+    <p>Share enough detail to help someone recognize the item. Required fields are marked.</p>
+    <form class="stacked-form" method="post">
+      {{ form.csrf_token }}
+      <div class="form-field">
+        <label for="{{ form.report_type.id }}">Report type <span class="required">Required</span></label>
+        {{ form.report_type(required=true, aria_invalid='true' if form.report_type.errors else 'false', aria_describedby='report-type-error' if form.report_type.errors else '') }}
+        {% for error in form.report_type.errors %}<p id="report-type-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.title.id }}">Title <span class="required">Required</span></label>
+        {{ form.title(minlength="3", maxlength="120", required=true, aria_invalid='true' if form.title.errors else 'false', aria_describedby='title-help title-error' if form.title.errors else 'title-help') }}
+        <p id="title-help" class="field-help">3–120 characters. Describe the item briefly.</p>
+        {% for error in form.title.errors %}<p id="title-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.description.id }}">Description <span class="required">Required</span></label>
+        {{ form.description(minlength="10", maxlength="2000", required=true, aria_invalid='true' if form.description.errors else 'false', aria_describedby='description-help description-error' if form.description.errors else 'description-help') }}
+        <p id="description-help" class="field-help">10–2000 characters. Do not include private contact details.</p>
+        {% for error in form.description.errors %}<p id="description-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.category.id }}">Category <span class="required">Required</span></label>
+        {{ form.category(required=true, aria_invalid='true' if form.category.errors else 'false', aria_describedby='category-error' if form.category.errors else '') }}
+        {% for error in form.category.errors %}<p id="category-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.location.id }}">Campus location <span class="required">Required</span></label>
+        {{ form.location(minlength="2", maxlength="150", required=true, aria_invalid='true' if form.location.errors else 'false', aria_describedby='location-help location-error' if form.location.errors else 'location-help') }}
+        <p id="location-help" class="field-help">Where the item was lost or found.</p>
+        {% for error in form.location.errors %}<p id="location-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.event_date.id }}">Date lost or found <span class="required">Required</span></label>
+        {{ form.event_date(required=true, aria_invalid='true' if form.event_date.errors else 'false', aria_describedby='date-help date-error' if form.event_date.errors else 'date-help') }}
+        <p id="date-help" class="field-help">Use the campus date in Asia/Kolkata.</p>
+        {% for error in form.event_date.errors %}<p id="date-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      {{ form.submit(class="button button-primary") }}
+    </form>
+  </section>
+{% endblock %}

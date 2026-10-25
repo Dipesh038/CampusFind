@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Server error · CampusFind{% endblock %}
+{% block content %}
+  <section class="card error-card" aria-labelledby="error-title">
+    <p class="eyebrow">Error 500</p>
+    <h1 id="error-title">Something went wrong</h1>
+    <p>We could not complete your request. Please try again later.</p>
+    <a class="button button-secondary" href="{{ url_for('main.index') }}">Go to homepage</a>
+  </section>
+{% endblock %}

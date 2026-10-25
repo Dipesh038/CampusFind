@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Home · CampusFind{% endblock %}
+{% block content %}
+  <section class="hero card" aria-labelledby="welcome-title">
+    <p class="eyebrow">University lost and found</p>
+    <h1 id="welcome-title">Find what matters. Help it get home.</h1>
+    <p class="lead">CampusFind helps students report lost or found belongings, browse campus reports, and submit private ownership evidence for found items.</p>
+    <div class="button-row">
+      <a class="button button-primary" href="{{ url_for('items.browse') }}">Browse Reports</a>
+      {% if g.user and g.user['role'] == 'student' %}
+        <a class="button button-secondary" href="{{ url_for('items.new') }}">Create a report</a>
+      {% elif g.user and g.user['role'] == 'admin' %}
+        <a class="button button-secondary" href="{{ url_for('admin.dashboard') }}">Open Admin Dashboard</a>
+      {% else %}
+        <a class="button button-secondary" href="{{ url_for('auth.register') }}">Create a student account</a>
+      {% endif %}
+    </div>
+  </section>
+  <section class="section" aria-labelledby="how-it-works">
+    <div class="section-heading">
+      <h2 id="how-it-works">How it works</h2>
+      <p>Three simple steps, from report to return.</p>
+    </div>
+    <div class="steps-grid">
+      <article class="card step-card">
+        <span class="step-number" aria-hidden="true">01</span>
+        <h3>Report an item</h3>
+        <p>Students post where and when something was lost or found.</p>
+      </article>
+      <article class="card step-card">
+        <span class="step-number" aria-hidden="true">02</span>
+        <h3>Claim privately</h3>
+        <p>A student who recognizes a found item sends ownership evidence for administrator review.</p>
+      </article>
+      <article class="card step-card">
+        <span class="step-number" aria-hidden="true">03</span>
+        <h3>Record the return</h3>
+        <p>An administrator reviews the claim and records the handover after the item is returned.</p>
+      </article>
+    </div>
+  </section>
+{% endblock %}

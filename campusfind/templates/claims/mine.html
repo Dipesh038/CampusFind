@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}My Claims · CampusFind{% endblock %}
+{% block content %}
+  <div class="page-heading"><div><p class="eyebrow">Private to you and administrators</p><h1>My Claims</h1></div><a class="button button-secondary" href="{{ url_for('items.browse', type='found', status='open') }}">Browse found reports</a></div>
+  {% if claims %}
+    <ul class="stack-list plain-list">
+      {% for claim in claims %}
+        <li class="card claim-card">
+          <div class="badge-row"><span class="badge badge-status badge-status-{{ claim['status'] }}">{{ claim['status']|capitalize }}</span></div>
+          <h2><a href="{{ url_for('items.detail', item_id=claim['item_id']) }}">{{ claim['item_title'] }}</a></h2>
+          <p class="timestamp">Status: {{ claim['status']|capitalize }} · Submitted: {{ claim['created_at'] }} UTC</p>
+          <div class="private-panel"><h3>Your evidence</h3><p class="preserve-lines">{{ claim['proof_text'] }}</p></div>
+          {% if claim['admin_note'] %}<div class="decision-panel"><h3>Decision explanation</h3><p class="preserve-lines">{{ claim['admin_note'] }}</p>{% if claim['reviewed_at'] %}<p class="timestamp">Reviewed: {{ claim['reviewed_at'] }} UTC</p>{% endif %}</div>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state card"><h2>You have not submitted any claims.</h2><p>Browse open found reports if you recognize an item you own.</p><a class="button button-primary" href="{{ url_for('items.browse', type='found', status='open') }}">Browse found reports</a></div>
+  {% endif %}
+{% endblock %}

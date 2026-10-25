@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Page not found · CampusFind{% endblock %}
+{% block content %}
+  <section class="card error-card" aria-labelledby="error-title">
+    <p class="eyebrow">Error 404</p>
+    <h1 id="error-title">Page not found</h1>
+    <p>{{ message }}</p>
+    <a class="button button-secondary" href="{{ url_for('items.browse') }}">Browse reports</a>
+  </section>
+{% endblock %}

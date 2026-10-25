@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Register · CampusFind{% endblock %}
+{% block content %}
+  <section class="auth-card card">
+    <p class="eyebrow">Join CampusFind</p>
+    <h1>Register</h1>
+    <p>Create a student account to report belongings and submit claims.</p>
+    <form class="stacked-form" method="post">
+      {{ form.csrf_token }}
+      <div class="form-field">
+        <label for="{{ form.name.id }}">Name <span class="required">Required</span></label>
+        {{ form.name(autocomplete="name", minlength="2", maxlength="100", required=true, aria_invalid='true' if form.name.errors else 'false', aria_describedby='register-name-error' if form.name.errors else '') }}
+        {% for error in form.name.errors %}<p id="register-name-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.email.id }}">Email <span class="required">Required</span></label>
+        {{ form.email(type="email", autocomplete="email", maxlength="254", required=true, aria_invalid='true' if form.email.errors else 'false', aria_describedby='register-email-error' if form.email.errors else '') }}
+        {% for error in form.email.errors %}<p id="register-email-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.password.id }}">Password <span class="required">Required</span></label>
+        <input id="{{ form.password.id }}" name="{{ form.password.name }}" type="password" autocomplete="new-password" minlength="12" maxlength="128" required aria-describedby="password-help{% if form.password.errors %} register-password-error{% endif %}" {% if form.password.errors %}aria-invalid="true"{% endif %}>
+        <p id="password-help" class="field-help">Use 12–128 characters.</p>
+        {% for error in form.password.errors %}<p id="register-password-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.confirm_password.id }}">Confirm password <span class="required">Required</span></label>
+        <input id="{{ form.confirm_password.id }}" name="{{ form.confirm_password.name }}" type="password" autocomplete="new-password" required {% if form.confirm_password.errors %}aria-invalid="true" aria-describedby="confirm-password-error"{% endif %}>
+        {% for error in form.confirm_password.errors %}<p id="confirm-password-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      {{ form.submit(class="button button-primary") }}
+    </form>
+    <p class="form-footnote">Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>.</p>
+  </section>
+{% endblock %}

@@ -1,0 +1,24 @@
+# Local Python environment and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Runtime data and secrets
+instance/
+*.db
+*.sqlite
+*.sqlite3
+*-journal
+*-wal
+*-shm
+.env
+.env.*
+
+# Temporary build outputs
+build/
+dist/
+*.egg-info/
+.coverage
+htmlcov/
+.DS_Store

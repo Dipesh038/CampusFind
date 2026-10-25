@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Login · CampusFind{% endblock %}
+{% block content %}
+  <section class="auth-card card">
+    <p class="eyebrow">Student and administrator access</p>
+    <h1>Login</h1>
+    <p>Sign in to manage your reports or claims.</p>
+    <form class="stacked-form" method="post">
+      {{ form.csrf_token }}
+      <div class="form-field">
+        <label for="{{ form.email.id }}">Email <span class="required">Required</span></label>
+        {{ form.email(type="email", autocomplete="email", maxlength="254", required=true, aria_invalid='true' if form.email.errors else 'false', aria_describedby='login-email-error' if form.email.errors else '') }}
+        {% for error in form.email.errors %}<p id="login-email-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-field">
+        <label for="{{ form.password.id }}">Password <span class="required">Required</span></label>
+        <input id="{{ form.password.id }}" name="{{ form.password.name }}" type="password" autocomplete="current-password" required {% if form.password.errors %}aria-invalid="true" aria-describedby="login-password-error"{% endif %}>
+        {% for error in form.password.errors %}<p id="login-password-error" class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+      {{ form.submit(class="button button-primary") }}
+    </form>
+    <p class="form-footnote">New to CampusFind? <a href="{{ url_for('auth.register') }}">Register as a student</a>.</p>
+  </section>
+{% endblock %}

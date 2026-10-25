@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Service unavailable · CampusFind{% endblock %}
+{% block content %}
+  <section class="card error-card" aria-labelledby="error-title">
+    <p class="eyebrow">Error 503</p>
+    <h1 id="error-title">Please try again shortly</h1>
+    <p>{{ message }}</p>
+    <a class="button button-secondary" href="{{ url_for('main.index') }}">Go to homepage</a>
+  </section>
+{% endblock %}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#086c68">
+    <title>{% block title %}CampusFind{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="{{ url_for('main.index') }}" {% if request.endpoint == 'main.index' %}aria-current="page"{% endif %}>CampusFind</a>
+        <nav class="site-nav" aria-label="Main navigation">
+          <a href="{{ url_for('items.browse') }}" {% if request.endpoint == 'items.browse' or request.endpoint == 'items.detail' %}aria-current="page"{% endif %}>Browse Reports</a>
+          {% if g.user %}
+            {% if g.user['role'] == 'student' %}
+              <a href="{{ url_for('items.new') }}" {% if request.endpoint == 'items.new' %}aria-current="page"{% endif %}>New Report</a>
+              <a href="{{ url_for('items.mine') }}" {% if request.endpoint == 'items.mine' or request.endpoint == 'items.edit' %}aria-current="page"{% endif %}>My Reports</a>
+              <a href="{{ url_for('claims.mine') }}" {% if request.endpoint == 'claims.mine' %}aria-current="page"{% endif %}>My Claims</a>
+            {% elif g.user['role'] == 'admin' %}
+              <a href="{{ url_for('admin.dashboard') }}" {% if request.endpoint == 'admin.dashboard' %}aria-current="page"{% endif %}>Admin Dashboard</a>
+            {% endif %}
+            <span class="signed-in">Signed in as {{ g.user['name'] }}</span>
+            <form class="nav-logout" method="post" action="{{ url_for('auth.logout') }}">
+              {{ logout_form.csrf_token }}
+              {{ logout_form.submit(class='button button-quiet') }}
+            </form>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}>Login</a>
+            <a href="{{ url_for('auth.register') }}" {% if request.endpoint == 'auth.register' %}aria-current="page"{% endif %}>Register</a>
+          {% endif %}
+        </nav>
+      </div>
+    </header>
+    <main id="main-content" class="container page-content" tabindex="-1">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-list" role="status" aria-live="polite">
+            {% for message in messages %}<p class="flash-message">{{ message }}</p>{% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer"><div class="container">CampusFind · University lost and found</div></footer>
+  </body>
+</html>

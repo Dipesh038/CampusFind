@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}My Reports · CampusFind{% endblock %}
+{% block content %}
+  <div class="page-heading"><div><p class="eyebrow">Your campus board</p><h1>My Reports</h1></div><a class="button button-primary" href="{{ url_for('items.new') }}">Create a report</a></div>
+  {% if reports %}
+    <ul class="report-grid plain-list">
+      {% for item in reports %}
+        <li class="card report-card">
+          <div class="badge-row"><span class="badge badge-type badge-{{ item['report_type'] }}">{{ item['report_type']|capitalize }}</span><span class="badge badge-status badge-status-{{ item['status'] }}">{{ item['status']|capitalize }}</span></div>
+          <h2><a href="{{ url_for('items.detail', item_id=item['id']) }}">{{ item['title'] }}</a></h2>
+          <dl class="card-meta">
+            <div><dt>Category</dt><dd>{{ item['category'] }}</dd></div>
+            <div><dt>Location</dt><dd>{{ item['location'] }}</dd></div>
+            <div><dt>Event date</dt><dd>{{ item['event_date'] }}</dd></div>
+          </dl>
+          <p class="timestamp">Reported: {{ item['created_at'] }} UTC</p>
+          <div class="button-row">
+          {% if item['status'] == 'open' and not item['has_claims'] %}
+            <a class="button button-secondary" href="{{ url_for('items.edit', item_id=item['id']) }}">Edit</a>
+          {% endif %}
+          {% if item['status'] == 'open' and item['report_type'] == 'lost' %}
+            <form method="post" action="{{ url_for('items.close', item_id=item['id']) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="button button-secondary" type="submit">Close lost report</button>
+            </form>
+          {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state card"><h2>You have not reported any items yet.</h2><p>Start with a lost or found report so others can help.</p><a class="button button-primary" href="{{ url_for('items.new') }}">Create a report</a></div>
+  {% endif %}
+{% endblock %}

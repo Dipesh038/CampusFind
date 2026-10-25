@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard · CampusFind{% endblock %}
+{% block content %}
+  <div class="page-heading"><div><p class="eyebrow">Private administrator workspace</p><h1>Admin Dashboard</h1></div></div>
+  <dl class="count-grid">
+    <div class="card count-card"><dt>Total reports</dt><dd>{{ counts['total_reports'] }}</dd></div>
+    <div class="card count-card"><dt>Open lost reports</dt><dd>{{ counts['open_lost'] }}</dd></div>
+    <div class="card count-card"><dt>Open found reports</dt><dd>{{ counts['open_found'] }}</dd></div>
+    <div class="card count-card"><dt>Pending claims</dt><dd>{{ counts['pending_claims'] }}</dd></div>
+    <div class="card count-card"><dt>Claimed found items awaiting handover</dt><dd>{{ counts['awaiting_handover'] }}</dd></div>
+    <div class="card count-card"><dt>Returned found items</dt><dd>{{ counts['returned_found'] }}</dd></div>
+  </dl>
+  <section class="section" aria-labelledby="pending-heading">
+    <div class="section-heading"><h2 id="pending-heading">Pending claims</h2><p>Review the report context and private ownership evidence before deciding.</p></div>
+    <p class="notice">Decision explanations are visible to the claimant. Do not include other people's private information.</p>
+  {% if pending %}
+    <ul class="stack-list plain-list">
+      {% for claim in pending %}
+        <li class="card review-card">
+          <div class="badge-row"><span class="badge badge-status badge-status-pending">Pending</span><span class="badge badge-status badge-status-{{ claim['item_status'] }}">Report {{ claim['item_status']|capitalize }}</span></div>
+          <h3><a href="{{ url_for('items.detail', item_id=claim['item_id']) }}">{{ claim['title'] }}</a></h3>
+          <p class="review-context">{{ claim['category'] }} · {{ claim['location'] }} · Event date: {{ claim['event_date'] }} · Report status: {{ claim['item_status']|capitalize }}</p>
+          <p class="timestamp">Submitted: {{ claim['created_at'] }} UTC</p>
+          <div class="private-panel"><h4>Private evidence</h4><p class="preserve-lines">{{ claim['proof_text'] }}</p></div>
+          <div class="decision-grid">
+            <form class="stacked-form decision-form" method="post" action="{{ url_for('admin.approve', claim_id=claim['id']) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="form-field"><label for="approve-note-{{ claim['id'] }}">Approval explanation <span class="required">Required</span></label><textarea id="approve-note-{{ claim['id'] }}" name="explanation" minlength="3" maxlength="500" required aria-describedby="approve-help-{{ claim['id'] }}"></textarea><p id="approve-help-{{ claim['id'] }}" class="field-help">3–500 characters. Visible to the claimant.</p></div>
+              <button class="button button-primary" type="submit">Approve claim</button>
+            </form>
+            <form class="stacked-form decision-form" method="post" action="{{ url_for('admin.reject', claim_id=claim['id']) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="form-field"><label for="reject-note-{{ claim['id'] }}">Rejection explanation <span class="required">Required</span></label><textarea id="reject-note-{{ claim['id'] }}" name="explanation" minlength="3" maxlength="500" required aria-describedby="reject-help-{{ claim['id'] }}"></textarea><p id="reject-help-{{ claim['id'] }}" class="field-help">3–500 characters. Visible to the claimant.</p></div>
+              <button class="button button-secondary" type="submit">Reject claim</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}<div class="empty-state card"><h3>No pending claims on this page.</h3><p>New submissions will appear here for review.</p></div>{% endif %}
+  <nav class="pagination" aria-label="Pending claim pages">
+    {% if pending_page > 1 %}<a class="button button-secondary" href="{{ url_for('admin.dashboard', pending_page=pending_page - 1, handover_page=handover_page) }}">Previous pending claims</a>{% endif %}
+    <span>Pending page {{ pending_page }}</span>
+    {% if pending_page * page_size < counts['pending_claims'] %}<a class="button button-secondary" href="{{ url_for('admin.dashboard', pending_page=pending_page + 1, handover_page=handover_page) }}">Next pending claims</a>{% endif %}
+  </nav>
+  </section>
+  <section class="section" aria-labelledby="handover-heading">
+  <div class="section-heading"><h2 id="handover-heading">Awaiting handover</h2><p>Record a return only after the item has been handed over.</p></div>
+  {% if handovers %}
+    <ul class="stack-list plain-list">
+      {% for item in handovers %}
+        <li class="card handover-card">
+          <h3><a href="{{ url_for('items.detail', item_id=item['id']) }}">{{ item['title'] }}</a></h3>
+          <p>{{ item['category'] }} · {{ item['location'] }} · Event date: {{ item['event_date'] }}</p>
+          <form class="confirmation-form" method="post" action="{{ url_for('admin.return_item', item_id=item['id']) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label class="checkbox-label" for="handover-{{ item['id'] }}"><input id="handover-{{ item['id'] }}" name="confirm_handover" type="checkbox" value="yes" required><span>I confirm the item was handed over.</span></label>
+            <button class="button button-primary" type="submit">Mark returned</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}<div class="empty-state card"><h3>No claimed found items on this page.</h3><p>Items ready for handover will appear here.</p></div>{% endif %}
+  <nav class="pagination" aria-label="Handover pages">
+    {% if handover_page > 1 %}<a class="button button-secondary" href="{{ url_for('admin.dashboard', pending_page=pending_page, handover_page=handover_page - 1) }}">Previous handovers</a>{% endif %}
+    <span>Handover page {{ handover_page }}</span>
+    {% if handover_page * page_size < counts['awaiting_handover'] %}<a class="button button-secondary" href="{{ url_for('admin.dashboard', pending_page=pending_page, handover_page=handover_page + 1) }}">Next handovers</a>{% endif %}
+  </nav>
+  </section>
+{% endblock %}

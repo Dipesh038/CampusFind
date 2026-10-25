@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Request conflict · CampusFind{% endblock %}
+{% block content %}
+  <section class="card error-card" aria-labelledby="error-title">
+    <p class="eyebrow">Error 409</p>
+    <h1 id="error-title">This request cannot be completed</h1>
+    <p>{{ message }}</p>
+    <a class="button button-secondary" href="{{ url_for('items.browse') }}">Browse current reports</a>
+  </section>
+{% endblock %}

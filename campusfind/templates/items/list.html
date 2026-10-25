@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Browse Reports · CampusFind{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <div><p class="eyebrow">Explore the campus board</p><h1>Browse Reports</h1></div>
+    {% if g.user and g.user['role'] == 'student' %}<a class="button button-primary" href="{{ url_for('items.new') }}">New Report</a>{% endif %}
+  </div>
+  <form class="filter-card card" method="get" action="{{ url_for('items.browse') }}" aria-label="Filter reports">
+    <div class="filter-grid">
+      <div class="form-field filter-search">
+        <label for="q">Search reports</label>
+        <input id="q" name="q" type="search" value="{{ q }}" maxlength="200" placeholder="Title, description or campus location">
+      </div>
+      <div class="form-field">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="">All categories</option>
+          {% for choice in categories %}<option value="{{ choice }}" {% if category == choice %}selected{% endif %}>{{ choice }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="type">Report type</label>
+        <select id="type" name="type">
+          <option value="">Lost and found</option>
+          <option value="lost" {% if report_type == 'lost' %}selected{% endif %}>Lost</option>
+          <option value="found" {% if report_type == 'found' %}selected{% endif %}>Found</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="">All statuses</option>
+          {% for choice in ('open', 'claimed', 'returned', 'closed') %}<option value="{{ choice }}" {% if status == choice %}selected{% endif %}>{{ choice|capitalize }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="button-row">
+      <button class="button button-primary" type="submit">Apply filters</button>
+      <a class="button button-text" href="{{ url_for('items.browse') }}">Clear filters</a>
+    </div>
+  </form>
+  <div class="results-heading"><h2>Reports</h2><p>{{ total }} report{% if total != 1 %}s{% endif %} found.</p></div>
+  {% if reports %}
+    <ul class="report-grid plain-list">
+      {% for item in reports %}
+        <li class="card report-card">
+          <div class="badge-row"><span class="badge badge-type badge-{{ item['report_type'] }}">{{ item['report_type']|capitalize }}</span><span class="badge badge-status badge-status-{{ item['status'] }}">{{ item['status']|capitalize }}</span></div>
+          <h2><a href="{{ url_for('items.detail', item_id=item['id']) }}">{{ item['title'] }}</a></h2>
+          <p class="report-excerpt">{{ item['description'] }}</p>
+          <dl class="card-meta">
+            <div><dt>Category</dt><dd>{{ item['category'] }}</dd></div>
+            <div><dt>Location</dt><dd>{{ item['location'] }}</dd></div>
+            <div><dt>Event date</dt><dd>{{ item['event_date'] }}</dd></div>
+          </dl>
+          <p class="timestamp">Reported: {{ item['created_at'] }} UTC</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state card"><h3>No reports match these filters.</h3><p>Try a different search or clear the filters to see all reports.</p><a class="button button-secondary" href="{{ url_for('items.browse') }}">Clear filters</a></div>
+  {% endif %}
+  <nav class="pagination" aria-label="Report pages">
+    {% if page > 1 %}<a class="button button-secondary" href="{{ url_for('items.browse', page=page - 1, **filters) }}">Previous</a>{% endif %}
+    <span>Page {{ page }}</span>
+    {% if page * page_size < total %}<a class="button button-secondary" href="{{ url_for('items.browse', page=page + 1, **filters) }}">Next</a>{% endif %}
+  </nav>
+{% endblock %}
