@@ -1,10 +1,10 @@
 # CampusFind project status
 
-Updated (UTC): 2026-10-25T06:59:06Z
+Updated (UTC): 2026-10-25T07:00:25Z
 Repository: `/Users/dipeshkunwar/Desktop/CampusFind`
-Git branch: `feature/cf09-ci`; current HEAD `d1b3d90aac86bc4c641f062adf4404ec11b77c74` (the current `origin/main` before CF-09)
+Git branch: `feature/cf09-ci`; current HEAD `2aa0d8ee9cf22a4b05d1f915130b97fad039a218`
 Remote: `origin` → `https://github.com/Dipesh038/CampusFind.git`
-Working tree: CF-09 workflow and documentation changes are uncommitted at this checkpoint; the newest source is not yet pushed.
+Working tree: clean before this checkpoint update; CF-09 workflow and documentation commit is pushed. PR #1 is open.
 
 ## Technical stages
 
@@ -18,7 +18,7 @@ Working tree: CF-09 workflow and documentation changes are uncommitted at this c
 | CF-06 | Responsive interface and visual review | DONE | 75 tests, dependency check, and required three-width browser review passed |
 | CF-07 | Integration, security and health review | DONE | 79 tests passed in original and clean Python 3.12 environments; DB-aware health verified |
 | CF-08 | Repository milestone and GitHub setup | DONE | Reviewed 39 files; first local commit and GitHub push completed; remote main SHA matched local main |
-| CF-09 | Continuous integration | IN_PROGRESS | Local workflow and 79 tests checked; branch commit, pull request, real Actions runs, merge, and artifact review pending |
+| CF-09 | Continuous integration | IN_PROGRESS | PR #1 test job passed; merge via available authenticated tools was denied, so main package and artifact checks remain pending |
 | CF-10 | Deployment preparation | NOT_STARTED | Scope awaits stage prompt |
 | CF-11 | CI/CD | NOT_STARTED | Scope awaits stage prompt |
 | CF-12 | Production release | BLOCKED | Infrastructure is absent; no release preparation has begun |
@@ -27,12 +27,12 @@ Planning labels for CF-10 through CF-12 are provisional. CF-01 through CF-08 hav
 
 ## CF-09 checkpoint (in progress)
 
-- **Status:** IN_PROGRESS. Local checks passed; GitHub pull-request and main-branch acceptance checks have not run yet.
+- **Status:** IN_PROGRESS. Local checks and the PR test job passed. PR #1 remains open because the GitHub integration returned HTTP 403 (`Resource not accessible by integration`) for merge, and Chrome is signed out. Main-branch packaging and artifact review have not run.
 - **Changed files:** New `.github/workflows/ci-cd.yml`; updated `README.md`, `PROJECT_STATUS.md`, and `KANBAN.md`. Application code, schema, tests, and pinned dependencies are unchanged.
 - **Workflow:** Pull requests to `main` and pushes to `main` run an Ubuntu Python 3.12 test job with pip caching from `requirements.txt`, `pip check`, and the full unittest suite. A main-only package job depends on the test job, checks out the workflow SHA, builds an explicit 26-source-file archive plus `RELEASE_SHA`, verifies members and metadata, and uploads a seven-day artifact. Official checkout v7.0.1, setup-python v7.0.0, and upload-artifact v7.0.2 are pinned to verified full release SHAs. Permissions are `contents: read`.
-- **Exact local commands and observed results:** `.venv/bin/python -m pip check` returned `No broken requirements found.`; `.venv/bin/python -m unittest discover -s tests -v` ran 79 tests in 3.339s and returned `OK`. `ruby -ryaml -e '...'` parsed the workflow and confirmed the pull-request/push triggers and `test`/`package` jobs. The workflow package Python block was extracted to a temporary script; `TESTED_SHA=d1b3d90aac86bc4c641f062adf4404ec11b77c74 .venv/bin/python /private/tmp/campusfind-cf09-package.py` verified an archive with 27 allowlisted files. `tar -tzf campusfind-d1b3d90aac86bc4c641f062adf4404ec11b77c74.tar.gz` listed only those files. A deliberately wrong `TESTED_SHA` returned exit 1 with `Checked-out commit differs from the tested commit`. The temporary script and archive were removed. `git diff --check` exited 0 before tracker edits; it will be rerun on staged files before commit.
-- **Git checkpoint:** `main` was clean at `d1b3d90aac86bc4c641f062adf4404ec11b77c74`, matching remote main; `git checkout -b feature/cf09-ci` succeeded. The branch currently has uncommitted CF-09 changes. No PR or Actions run is claimed.
-- **NOT RUN / pending:** Branch commit and push, pull request, real PR Actions run, merge, main test/package run, and remote artifact verification. These are the remaining CF-09 acceptance checks.
+- **Exact local commands and observed results:** `.venv/bin/python -m pip check` returned `No broken requirements found.`; `.venv/bin/python -m unittest discover -s tests -v` ran 79 tests in 3.303s and returned `OK`. Workflow structure and allowlisting were checked locally in the preceding checkpoint; Ruby parsed the workflow and a temporary extracted package script verified 27 archive members and rejected a mismatched SHA. `git diff origin/main...HEAD --check` passed. Official release pages confirmed checkout v7.0.1, setup-python v7.0.0, and upload-artifact v7.0.2.
+- **Git and PR:** Branch `feature/cf09-ci`, tested head `2aa0d8ee9cf22a4b05d1f915130b97fad039a218`; base `main` at `d1b3d90aac86bc4c641f062adf4404ec11b77c74`. PR [#1](https://github.com/Dipesh038/CampusFind/pull/1) is open. Its [Actions run](https://github.com/Dipesh038/CampusFind/actions/runs/40171124589) completed successfully on 2026-10-25: `test` succeeded and `package` was skipped as intended for a pull request. PR merge attempted with the authorized GitHub integration returned 403 `Resource not accessible by integration`; Chrome has no signed-in GitHub session. The actual main SHA remains `d1b3d90aac86bc4c641f062adf4404ec11b77c74`.
+- **Pending / blocker:** Merge PR #1 using an authenticated GitHub account. Then observe the push-to-main run, confirm both jobs pass, and inspect/download the commit-named artifact to verify source members and `RELEASE_SHA`. No main run or remote artifact is claimed. No deployment work has begun.
 - **Next stage:** CF-10 only after a separate prompt and CF-09 acceptance; do not begin automatically.
 
 ## CF-08 checkpoint

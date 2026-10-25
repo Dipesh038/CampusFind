@@ -25,7 +25,7 @@ No cards.
 
 | Card | Work | Acceptance criteria |
 | --- | --- | --- |
-| CF-09 | GitHub Actions test and source package workflow | 79 local tests and archive checks; passing PR run, reviewed merge, passing main test/package jobs, verified artifact and SHA |
+| CF-09 | GitHub Actions test and source package workflow | 79 local tests and archive checks; PR #1 test job passed; merge is blocked by unavailable authenticated GitHub merge access; main jobs and artifact remain pending |
 
 ## Done
 
@@ -93,3 +93,5 @@ No cards.
 | 2026-10-25 | CF-08 | Testing → Done | Remote `refs/heads/main` returned `9f0a97e994ba5102459eea757758eeed867a5239`, equal to local HEAD at verification. The pushed tree contained the 39 reviewed project files and no ignored runtime data. Separate final checkpoint commit/push is recorded in the terminal summary. |
 | 2026-10-25 | CF-09 | Backlog → In Progress | Read stage prompt, trackers, README, requirements, tests, and Git state. Local and remote main matched at `d1b3d90aac86bc4c641f062adf4404ec11b77c74`; created `feature/cf09-ci` from clean main. |
 | 2026-10-25 | CF-09 | In Progress → Testing | Added pinned official-action workflow and CI README. Local `pip check` and 79 unittests passed; Ruby parsed job/trigger structure; extracted package script verified 27 archive members and rejected a mismatched SHA. Temporary archive removed. Remote PR and Actions evidence still pending. |
+| 2026-10-25 | CF-09 | Testing review | PR [#1](https://github.com/Dipesh038/CampusFind/pull/1) opened from `feature/cf09-ci` at `2aa0d8ee9cf22a4b05d1f915130b97fad039a218`; [PR Actions run](https://github.com/Dipesh038/CampusFind/actions/runs/40171124589) passed the test job, with package correctly skipped for the PR event. |
+| 2026-10-25 | CF-09 | Merge blocked | GitHub merge API returned 403 `Resource not accessible by integration`; the available Chrome session is signed out. Base main remains `d1b3d90aac86bc4c641f062adf4404ec11b77c74`. Merge PR #1, then verify the main run and its artifact. |
