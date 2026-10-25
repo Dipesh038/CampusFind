@@ -129,12 +129,29 @@ dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
 .flash-list { margin-bottom: 1rem; }
 .flash-message { padding: .8rem 1rem; border-left: 4px solid var(--teal); border-radius: .35rem; background: #e7f5f2; }
 .error-card { max-width: 40rem; padding: clamp(1.5rem, 5vw, 2.5rem); margin-inline: auto; }
+.nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 1.25rem; height: 1.25rem; padding: 0 .35rem; border-radius: 999px; background: #c2410c; color: #fff; font-size: .75rem; font-weight: 800; line-height: 1; margin-left: .35rem; vertical-align: middle; }
+.finder-portal-section { margin-bottom: 2.5rem; }
+.claims-list { display: grid; gap: 1.25rem; }
+.claim-request-card { padding: 1.4rem; border-left: 4px solid var(--teal); }
+.claim-request-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.claim-request-header h3 { margin-bottom: 0; }
+.claimant-profile { background: #f0f7f6; padding: .85rem 1rem; border-radius: .45rem; margin-bottom: .9rem; border: 1px solid #d3e5e3; }
+.claimant-title { margin-bottom: .35rem; font-size: .95rem; }
+.claimant-meta { display: flex; flex-wrap: wrap; gap: .75rem 1.75rem; }
+.claim-evidence-box { background: #fafcfc; padding: .85rem 1rem; border-radius: .45rem; border: 1px solid #e2eceb; margin-bottom: 1rem; }
+.claim-evidence-label { margin-bottom: .35rem; color: var(--muted); font-size: .9rem; }
+.claim-decision-note { background: #fff8eb; padding: .75rem 1rem; border-radius: .45rem; border: 1px solid #fcd34d; margin-bottom: 1rem; font-size: .92rem; }
+.claim-action-forms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.claim-decision-form { display: flex; flex-direction: column; gap: .5rem; }
+.finder-item-claims { margin-top: 1.5rem; }
+.item-claim-block { padding: 1rem; margin-top: 1rem; background: #fafcfc; border: 1px solid var(--border); }
 
 @media (max-width: 900px) {
   .steps-grid, .report-grid, .count-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .detail-layout { grid-template-columns: minmax(0, 1fr); }
   .filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .filter-grid .filter-search { grid-column: span 3; }
+  .claim-action-forms { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 600px) {
   .container { width: min(100% - 1.25rem, 72rem); }
@@ -143,7 +160,7 @@ dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
   .site-nav { width: 100%; }
   .site-nav > a { padding-inline: .45rem; }
   .signed-in { width: 100%; }
-  .steps-grid, .report-grid, .count-grid, .filter-grid, .decision-grid { grid-template-columns: minmax(0, 1fr); }
+  .steps-grid, .report-grid, .count-grid, .filter-grid, .decision-grid, .claim-action-forms { grid-template-columns: minmax(0, 1fr); }
   .filter-grid .filter-search { grid-column: auto; }
   .hero { background: #fff; }
   .button-row .button { width: 100%; }

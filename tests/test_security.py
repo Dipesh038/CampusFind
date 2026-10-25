@@ -189,6 +189,8 @@ class CsrfTests(unittest.TestCase):
             (f"/admin/claims/{claim_id}/approve", {"explanation": "Evidence matches"}),
             (f"/admin/claims/{claim_id}/reject", {"explanation": "Insufficient detail"}),
             (f"/admin/items/{item}/return", {"confirm_handover": "yes"}),
+            (f"/claims/{claim_id}/accept", {"explanation": "Accepted by finder"}),
+            (f"/claims/{claim_id}/reject", {"explanation": "Rejected by finder"}),
         ):
             with self.subTest(path=path):
                 for supplied in ({}, {"csrf_token": "invalid-token"}):

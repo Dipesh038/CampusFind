@@ -157,7 +157,7 @@ class ClaimTests(unittest.TestCase):
                     "UPDATE claims SET status = 'rejected', admin_note = ?, reviewed_at = ? WHERE item_id = ?",
                     ("Private decision words", "2020-01-03T00:00:00Z", self.found),
                 )
-        for identity in (None, self.owner, self.other):
+        for identity in (None, self.other):
             with self.subTest(identity=identity):
                 self.sign_in(identity)
                 for path in ("/items", f"/items/{self.found}", "/items/mine" if identity else "/items"):
@@ -165,6 +165,96 @@ class ClaimTests(unittest.TestCase):
                     self.assertEqual(response.status_code, 200)
                     for private in (PROOF.encode(), b"Private decision words", b"claimant@example.edu"):
                         self.assertNotIn(private, response.data)
+
+        self.sign_in(self.owner)
+        for path in ("/items", f"/items/{self.found}"):
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 200)
+            for private in (PROOF.encode(), b"Private decision words", b"claimant@example.edu"):
+                self.assertNotIn(private, response.data)
+
+        mine_response = self.client.get("/items/mine")
+        self.assertEqual(mine_response.status_code, 200)
+        self.assertIn(b"claimant@example.edu", mine_response.data)
+        self.assertIn(PROOF.encode(), mine_response.data)
+
+    def test_finder_can_accept_claim_and_resolves_competing_claims(self):
+        self.sign_in(self.claimant)
+        self.claim(proof_text=PROOF)
+        self.sign_in(self.other)
+        self.claim(proof_text="Second claim proof text with twenty plus characters.")
+
+        claim_1 = self.row(self.found, self.claimant)["id"]
+        claim_2 = self.row(self.found, self.other)["id"]
+
+        self.sign_in(self.owner)
+        mine_resp = self.client.get("/items/mine")
+        self.assertIn(b"claimant@example.edu", mine_resp.data)
+        self.assertIn(b"other@example.edu", mine_resp.data)
+
+        response = self.client.post(
+            f"/claims/{claim_1}/accept",
+            data={"explanation": "Meet at library info desk."},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/items/mine")
+
+        c1 = self.row(self.found, self.claimant)
+        self.assertEqual(c1["status"], "approved")
+        self.assertIn("Accepted by finder: Meet at library info desk.", c1["admin_note"])
+        self.assertIsNotNone(c1["reviewed_at"])
+
+        c2 = self.row(self.found, self.other)
+        self.assertEqual(c2["status"], "rejected")
+        self.assertIn("Another claim was accepted by the finder.", c2["admin_note"])
+
+        with self.app.app_context():
+            item = get_db().execute("SELECT status FROM items WHERE id = ?", (self.found,)).fetchone()
+            self.assertEqual(item["status"], "claimed")
+
+    def test_finder_can_reject_claim_and_item_remains_open(self):
+        self.sign_in(self.claimant)
+        self.claim(proof_text=PROOF)
+        claim_id = self.row(self.found, self.claimant)["id"]
+
+        self.sign_in(self.owner)
+        response = self.client.post(
+            f"/claims/{claim_id}/reject",
+            data={"explanation": "Initials did not match notebook."},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        c = self.row(self.found, self.claimant)
+        self.assertEqual(c["status"], "rejected")
+        self.assertIn("Rejected by finder: Initials did not match notebook.", c["admin_note"])
+
+        with self.app.app_context():
+            item = get_db().execute("SELECT status FROM items WHERE id = ?", (self.found,)).fetchone()
+            self.assertEqual(item["status"], "open")
+
+    def test_finder_decisions_require_ownership_and_open_status(self):
+        self.sign_in(self.claimant)
+        self.claim(proof_text=PROOF)
+        claim_id = self.row(self.found, self.claimant)["id"]
+
+        # Other student cannot decide
+        self.sign_in(self.other)
+        self.assertEqual(self.client.post(f"/claims/{claim_id}/accept").status_code, 403)
+        self.assertEqual(self.client.post(f"/claims/{claim_id}/reject").status_code, 403)
+
+        # Anonymous cannot decide
+        with self.client.session_transaction() as sess:
+            sess.clear()
+        self.assertEqual(self.client.post(f"/claims/{claim_id}/accept").status_code, 302)
+
+        # Decide by owner
+        self.sign_in(self.owner)
+        self.assertEqual(self.client.post(f"/claims/{claim_id}/accept").status_code, 302)
+
+        # Repeat decision is rejected
+        self.assertEqual(self.client.post(f"/claims/{claim_id}/accept").status_code, 409)
+        self.assertEqual(self.client.post(f"/claims/{claim_id}/reject").status_code, 409)
+
 
     def test_detail_shows_form_only_to_eligible_student(self):
         self.assertIn(b"Sign in as a student", self.client.get(f"/items/{self.found}").data)

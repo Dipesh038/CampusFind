@@ -18,7 +18,7 @@
       </dl>
     </article>
     <aside class="detail-actions">
-      {% if can_edit or can_close %}
+      {% if can_edit or can_close or (owned and item['report_type'] == 'found') %}
         <section class="card action-card" aria-labelledby="manage-report">
           <h2 id="manage-report">Manage your report</h2>
           {% if can_edit %}
@@ -35,6 +35,9 @@
               <p>Only close this lost report when it has been resolved.</p>
               <button class="button button-secondary" type="submit">Close lost report</button>
             </form>
+          {% endif %}
+          {% if owned and item['report_type'] == 'found' %}
+            <a class="button button-secondary" href="{{ url_for('items.mine') }}">View Claims in Finder Portal</a>
           {% endif %}
         </section>
       {% endif %}

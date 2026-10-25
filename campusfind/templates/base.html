@@ -17,7 +17,7 @@
           {% if g.user %}
             {% if g.user['role'] == 'student' %}
               <a href="{{ url_for('items.new') }}" {% if request.endpoint == 'items.new' %}aria-current="page"{% endif %}>New Report</a>
-              <a href="{{ url_for('items.mine') }}" {% if request.endpoint == 'items.mine' or request.endpoint == 'items.edit' %}aria-current="page"{% endif %}>My Reports</a>
+              <a href="{{ url_for('items.mine') }}" {% if request.endpoint == 'items.mine' or request.endpoint == 'items.edit' %}aria-current="page"{% endif %}>My Reports{% if pending_finder_claims and pending_finder_claims > 0 %} <span class="nav-badge" aria-label="{{ pending_finder_claims }} pending claim requests">{{ pending_finder_claims }}</span>{% endif %}</a>
               <a href="{{ url_for('claims.mine') }}" {% if request.endpoint == 'claims.mine' %}aria-current="page"{% endif %}>My Claims</a>
             {% elif g.user['role'] == 'admin' %}
               <a href="{{ url_for('admin.dashboard') }}" {% if request.endpoint == 'admin.dashboard' %}aria-current="page"{% endif %}>Admin Dashboard</a>

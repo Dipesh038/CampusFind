@@ -113,3 +113,12 @@ class ReturnForm(FlaskForm):
     confirm_handover = BooleanField(
         "I confirm the item was handed over", validators=[DataRequired()]
     )
+
+
+class FinderDecisionForm(FlaskForm):
+    explanation = StringField(
+        "Note for claimant", filters=[trim_text],
+        validators=[Length(max=500)],
+    )
+
+

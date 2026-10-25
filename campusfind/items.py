@@ -109,7 +109,8 @@ def browse():
 @bp.get("/items/mine")
 @login_required
 def mine():
-    reports = get_db().execute(
+    connection = get_db()
+    reports = connection.execute(
         """SELECT i.id, i.title, i.report_type, i.category, i.location, i.event_date,
                   i.status, i.created_at,
                   EXISTS (SELECT 1 FROM claims c WHERE c.item_id = i.id) AS has_claims
@@ -117,7 +118,26 @@ def mine():
            ORDER BY i.created_at DESC, i.id DESC""",
         (g.user["id"],),
     ).fetchall()
-    return render_template("items/mine.html", reports=reports)
+    received_claims = connection.execute(
+        """SELECT c.id, c.item_id, c.claimant_id, c.proof_text, c.status,
+                  c.admin_note, c.created_at, c.reviewed_at,
+                  i.title AS item_title, i.status AS item_status,
+                  u.name AS claimant_name, u.email AS claimant_email
+           FROM claims c
+           JOIN items i ON i.id = c.item_id
+           JOIN users u ON u.id = c.claimant_id
+           WHERE i.reporter_id = ?
+           ORDER BY CASE WHEN c.status = 'pending' THEN 0 ELSE 1 END,
+                    c.created_at DESC, c.id DESC""",
+        (g.user["id"],),
+    ).fetchall()
+    from .forms import FinderDecisionForm
+    return render_template(
+        "items/mine.html",
+        reports=reports,
+        received_claims=received_claims,
+        decision_form=FinderDecisionForm(),
+    )
 
 
 @bp.get("/items/<int:item_id>")
@@ -154,9 +174,11 @@ def render_detail(item_id, claim_form=None):
         claim_message = "This found report is no longer open for claims."
     return render_template(
         "items/detail.html", item=item, can_edit=can_edit, can_close=can_close,
+        owned=owned,
         claim_form=claim_form if claim_message is None else None,
         claim_message=claim_message,
     )
+
 
 
 @bp.route("/items/new", methods=("GET", "POST"))

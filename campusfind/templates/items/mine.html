@@ -1,7 +1,77 @@
 {% extends "base.html" %}
 {% block title %}My Reports · CampusFind{% endblock %}
 {% block content %}
-  <div class="page-heading"><div><p class="eyebrow">Your campus board</p><h1>My Reports</h1></div><a class="button button-primary" href="{{ url_for('items.new') }}">Create a report</a></div>
+  <div class="page-heading"><div><p class="eyebrow">Your campus board</p><h1>My Reports & Finder Portal</h1></div><a class="button button-primary" href="{{ url_for('items.new') }}">Create a report</a></div>
+
+  {% if received_claims %}
+    <section class="section finder-portal-section" aria-labelledby="finder-claims-heading">
+      <div class="section-heading">
+        <p class="eyebrow">Notifications</p>
+        <h2 id="finder-claims-heading">Claim Notifications & Requests</h2>
+        <p>Students claiming items you found. Review their details, verify ownership evidence, and accept or reject their claim.</p>
+      </div>
+      <div class="claims-list">
+        {% for claim in received_claims %}
+          <article class="card claim-request-card">
+            <div class="claim-request-header">
+              <div>
+                <span class="badge badge-status badge-status-{{ claim['status'] }}">{{ claim['status']|capitalize }}</span>
+                <h3>Claim on: <a href="{{ url_for('items.detail', item_id=claim['item_id']) }}">{{ claim['item_title'] }}</a></h3>
+              </div>
+              <p class="timestamp">Submitted: {{ claim['created_at'] }} UTC</p>
+            </div>
+
+            <div class="claimant-profile">
+              <p class="claimant-title"><strong>Claimant Information:</strong></p>
+              <div class="claimant-meta">
+                <span><strong>Name:</strong> {{ claim['claimant_name'] }}</span>
+                <span><strong>Email:</strong> <a href="mailto:{{ claim['claimant_email'] }}">{{ claim['claimant_email'] }}</a></span>
+              </div>
+            </div>
+
+            <div class="claim-evidence-box">
+              <p class="claim-evidence-label"><strong>Ownership Evidence / Proof:</strong></p>
+              <p class="preserve-lines">{{ claim['proof_text'] }}</p>
+            </div>
+
+            {% if claim['admin_note'] %}
+              <div class="claim-decision-note">
+                <p><strong>Decision note:</strong> {{ claim['admin_note'] }}</p>
+              </div>
+            {% endif %}
+
+            {% if claim['status'] == 'pending' and claim['item_status'] == 'open' %}
+              <div class="claim-action-forms">
+                <form class="claim-decision-form" method="post" action="{{ url_for('claims.finder_accept', claim_id=claim['id']) }}">
+                  {{ decision_form.csrf_token }}
+                  <div class="form-field">
+                    <label for="accept-note-{{ claim['id'] }}">Note for {{ claim['claimant_name'] }} (optional):</label>
+                    <input id="accept-note-{{ claim['id'] }}" name="explanation" type="text" maxlength="500" placeholder="e.g. You can collect it from the Library front desk.">
+                  </div>
+                  <button class="button button-primary" type="submit">Accept Claim</button>
+                </form>
+
+                <form class="claim-decision-form" method="post" action="{{ url_for('claims.finder_reject', claim_id=claim['id']) }}">
+                  {{ decision_form.csrf_token }}
+                  <div class="form-field">
+                    <label for="reject-note-{{ claim['id'] }}">Reason for rejection (optional):</label>
+                    <input id="reject-note-{{ claim['id'] }}" name="explanation" type="text" maxlength="500" placeholder="e.g. Details provided do not match the item.">
+                  </div>
+                  <button class="button button-danger" type="submit">Reject Claim</button>
+                </form>
+              </div>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <div class="section-heading">
+    <p class="eyebrow">Your reported items</p>
+    <h2>Reports Posted by You</h2>
+  </div>
+
   {% if reports %}
     <ul class="report-grid plain-list">
       {% for item in reports %}

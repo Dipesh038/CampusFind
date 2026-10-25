@@ -126,8 +126,26 @@ def init_app(app):
     app.before_request(load_logged_in_user)
 
     @app.context_processor
-    def inject_logout_form():
-        return {"logout_form": LogoutForm() if g.get("user") is not None else None}
+    def inject_nav_globals():
+        user = g.get("user")
+        logout_form = LogoutForm() if user is not None else None
+        pending_finder_claims = 0
+        if user is not None and user["role"] == "student" and request.endpoint != "main.health":
+            try:
+                row = get_db().execute(
+                    """SELECT COUNT(*) FROM claims c
+                       JOIN items i ON i.id = c.item_id
+                       WHERE i.reporter_id = ? AND c.status = 'pending'""",
+                    (user["id"],),
+                ).fetchone()
+                if row:
+                    pending_finder_claims = row[0]
+            except Exception:
+                pass
+        return {
+            "logout_form": logout_form,
+            "pending_finder_claims": pending_finder_claims,
+        }
 
     @app.cli.command("create-admin")
     def create_admin_command():
