@@ -1,7 +1,7 @@
 # CampusFind Kanban
 
-Updated (UTC): 2026-10-25T12:05:00Z
-**In Progress WIP limit: 2**. Current WIP: 1.
+Updated (UTC): 2026-10-25T12:14:50Z
+**In Progress WIP limit: 2**. Current WIP: 0.
 
 ## Backlog
 
@@ -17,15 +17,11 @@ No cards.
 
 ## In Progress
 
-| Card | Work | Acceptance criteria |
-| --- | --- | --- |
-| CF-11 | PythonAnywhere CI/CD | Passing PR and real main test/package/deploy run; exact live SHA and visible change; data preserved; failing-test PR/restoration; documented recovery and limitations |
+No cards.
 
 ## Testing
 
-| Card | Work | Acceptance criteria |
-| --- | --- | --- |
-| CF-10 | Existing PythonAnywhere deployment | HTTPS home/health, registration/login/cookies and fictional report verified; pending Force HTTPS, Reload persistence and debug-off acceptance |
+No cards.
 
 ## Done
 
@@ -40,6 +36,8 @@ No cards.
 | CF-07 | DONE | Existing security/transaction tests mapped; real-CSRF full journey and cross-app persistence passed; DB-aware JSON health and production checks passed; 79 tests and `pip check` passed in original and clean Python 3.12 environments |
 | CF-08 | DONE | 39 intended files reviewed and committed; empty supplied GitHub repository confirmed; `main` pushed; remote SHA matched local main; branch workflow documented |
 | CF-09 | DONE | PR #1 merged as `46f30f1`; main run 40187944747 test and package succeeded; downloaded artifact has exactly 27 regular allowlisted members, correct release SHA, and 26 source files matching the merged commit byte for byte; local 79 tests and dependency check passed |
+| CF-10 | DONE | Existing PythonAnywhere HTTPS home/health/release, fictional registration/login/cookies, Force HTTPS with 302 redirect, debug-off loader, external persistent data/env paths and report surviving Reload verified; obsolete untracked Ubuntu templates removed without user changes |
+| CF-11 | DONE | PR #2 SQLite fix and PR #3 deployment merged after tests; main run 40191731669 passed test/package/deploy at `fd13999`; read-only run 40192225863 verified exact SHA/footer/original report; negative PR #4 failed then restored and closed unmerged; live rollback unverified, simulated recovery tests pass |
 
 ## Actual transitions and review notes
 
@@ -101,3 +99,7 @@ No cards.
 | 2026-10-25 | CF-10 | In Progress → To Do (BLOCKED) | User answered no existing server. Prepared only systemd service, Nginx template, and README setup/acceptance guidance locally. No Ubuntu/SSH/hostname target, certificate, live URL or deployed SHA. 79 tests, pip check, Gunicorn configuration load and trusted/untrusted proxy-scheme checks passed. Nginx/systemd native checks and all real HTTPS/persistence checks NOT RUN; CF-10 remains out of Done. No commit, push, merge, GitHub deployment secrets, or automatic deployment. Next stage CF-11 only after CF-10 acceptance and separate prompt. |
 | 2026-10-25 | CF-10 | To Do (BLOCKED) → Testing | User supplied existing working PythonAnywhere deployment and selected managed hosting. Verified HTTPS home/health at `46f30f1`, registration/login/cookie flags, and fictional report `/items/3`. HTTP initially lacked HTTPS redirect. Ubuntu plan abandoned; exact original hashes confirmed for both untracked templates before removal. History retained here. Reload persistence and remaining checks pending. |
 | 2026-10-25 | CF-11 | Backlog → In Progress | Explicit stage prompt received. SQLite closing fix passed 79 tests, PR #2 tests, then merged as `4a6366e`; main run 40190705536 passed test/package. User configured API token directly in GitHub; four non-secret variables set. Prepared official-API isolated-release deployment and simulated failure/recovery tests; 88 tests pass. No live deployment or automatic rollback success claimed yet. |
+| 2026-10-25 | CF-10 | Testing → Done | Official API enabled Force HTTPS and reloaded the old app; HTTP 302 to HTTPS observed and fictional report `/items/3` remained. Successful managed WSGI startup enforces production/debug-off/Secure settings; live home/health, registration/login and persistent external data/env accepted. Source path/API/static and tracked-file audits passed. No old Ubuntu deployment performed. |
+| 2026-10-25 | CF-11 | In Progress → Testing | Deployment commit `6d9a32f`, PR #3; run 40191694062 passed tests and skipped package/deploy. Merge `fd13999` triggered main run 40191731669; test/package/deploy succeeded and live health matched the exact SHA at 12:10:43 UTC. All 27 source members uploaded/read back before activation; previous source and data/env retained. |
+| 2026-10-25 | CF-11 | Negative gate verified and restored | Unmerged PR #4 at `9307bc6`, run 40191764960: expected test failure, package/deploy skipped. Test removed/restored with `d0ba518`, pushed, PR closed without merge. Main was never broken. |
+| 2026-10-25 | CF-11 | Testing → Done | Mac-to-PythonAnywhere requests later timed out, so separate read-only branch/run 40192225863 verified production externally: exact `fd13999` release, visible footer and original fictional report after deployment. Source workflow branch not merged. Simulated rollback tests pass; live automatic rollback explicitly NOT TESTED. Documentation records recovery/monthly renewal and next stage CF-12; no CF-12 work begun. |
