@@ -1,13 +1,11 @@
 # CampusFind Kanban
 
-Updated (UTC): 2026-10-25T12:14:50Z
+Updated (UTC): 2026-10-25T12:34:00Z
 **In Progress WIP limit: 2**. Current WIP: 0.
 
 ## Backlog
 
-| Card | Provisional work | Acceptance criteria |
-| --- | --- | --- |
-| CF-12 | Production release (NOT_STARTED) | PythonAnywhere now exists; await separate stage prompt |
+No cards.
 
 These are planning labels, not permission to begin later stages.
 
@@ -38,6 +36,7 @@ No cards.
 | CF-09 | DONE | PR #1 merged as `46f30f1`; main run 40187944747 test and package succeeded; downloaded artifact has exactly 27 regular allowlisted members, correct release SHA, and 26 source files matching the merged commit byte for byte; local 79 tests and dependency check passed |
 | CF-10 | DONE | Existing PythonAnywhere HTTPS home/health/release, fictional registration/login/cookies, Force HTTPS with 302 redirect, debug-off loader, external persistent data/env paths and report surviving Reload verified; obsolete untracked Ubuntu templates removed without user changes |
 | CF-11 | DONE | PR #2 SQLite fix and PR #3 deployment merged after tests; main run 40191731669 passed test/package/deploy at `fd13999`; read-only run 40192225863 verified exact SHA/footer/original report; negative PR #4 failed then restored and closed unmerged; live rollback unverified, simulated recovery tests pass |
+| CF-12 | DONE — technical audit | 88 tests and 16 template compiles pass; deployed `0d2a848` artifact/source verified; read-only live audit 40193172879 passes; final docs PR review/merge and institutional submission remain manual; limitations disclosed |
 
 ## Actual transitions and review notes
 
@@ -103,3 +102,6 @@ No cards.
 | 2026-10-25 | CF-11 | In Progress → Testing | Deployment commit `6d9a32f`, PR #3; run 40191694062 passed tests and skipped package/deploy. Merge `fd13999` triggered main run 40191731669; test/package/deploy succeeded and live health matched the exact SHA at 12:10:43 UTC. All 27 source members uploaded/read back before activation; previous source and data/env retained. |
 | 2026-10-25 | CF-11 | Negative gate verified and restored | Unmerged PR #4 at `9307bc6`, run 40191764960: expected test failure, package/deploy skipped. Test removed/restored with `d0ba518`, pushed, PR closed without merge. Main was never broken. |
 | 2026-10-25 | CF-11 | Testing → Done | Mac-to-PythonAnywhere requests later timed out, so separate read-only branch/run 40192225863 verified production externally: exact `fd13999` release, visible footer and original fictional report after deployment. Source workflow branch not merged. Simulated rollback tests pass; live automatic rollback explicitly NOT TESTED. Documentation records recovery/monthly renewal and next stage CF-12; no CF-12 work begun. |
+| 2026-10-25 | CF-12 | Backlog → In Progress | User accepted CF-11 and requested final read-only audit/project checkpoint. Inspected all tracked areas, current Git/main state and CI/CD history; preserved homepage edit and production data/secrets. No fabricated Scrum evidence or fresh production failure. |
+| 2026-10-25 | CF-12 | In Progress → Testing | Python 3.12.15, pip check clean, 88 tests passed in 3.479s; 16 templates compiled. Exact deployed archive has 27 regular members and 26 matching source files. Current action pins verified; dated advisory query found no reviewed matches for 10 pins. History heuristic scan found only fictional credential constants; main branch protection absent and disclosed. |
+| 2026-10-25 | CF-12 | Testing → Done (technical audit) | Isolated read-only run 40193172879 passed fresh HTTPS/health at `0d2a848`, cookie flags, redirects, public/private routing and unchanged fictional report `/items/3`. No write/reload/secret/API access to production. Final README/status/board prepared for documentation-only reviewed PR after checks passed. Human PR review/merge, submission and maintenance remain explicit manual actions; no independent approval, live rollback, private file-mode check or full Scrum cadence claimed. |
