@@ -1,6 +1,6 @@
 # CampusFind Kanban
 
-Updated (UTC): 2026-10-25T06:46:35Z
+Updated (UTC): 2026-10-25T06:50:27Z
 **In Progress WIP limit: 2**. Current WIP: 0.
 
 ## Backlog
@@ -16,9 +16,7 @@ These are planning labels, not permission to begin later stages.
 
 ## To Do
 
-| Card | Status | Remaining acceptance criteria |
-| --- | --- | --- |
-| CF-08 | BLOCKED: existing repository URL and working GitHub authentication needed | Inspect empty destination, connect origin, push local main, verify matching remote SHA |
+No cards.
 
 ## In Progress
 
@@ -39,6 +37,7 @@ No cards.
 | CF-05 | DONE | Student claims, private My Claims, admin review/handover with atomic transitions; `pip check`, 71 tests including controlled concurrency/rollback, and disposable live HTTP flow passed |
 | CF-06 | DONE | Responsive plain-CSS pages, role navigation, shared errors, accessible forms; `pip check`, 75 tests, and Brave visual review at 375/768/1440px, including keyboard, no-JavaScript, long-text, and handover checks passed |
 | CF-07 | DONE | Existing security/transaction tests mapped; real-CSRF full journey and cross-app persistence passed; DB-aware JSON health and production checks passed; 79 tests and `pip check` passed in original and clean Python 3.12 environments |
+| CF-08 | DONE | 39 intended files reviewed and committed; empty supplied GitHub repository confirmed; `main` pushed; remote SHA matched local main; branch workflow documented |
 
 ## Actual transitions and review notes
 
@@ -88,3 +87,6 @@ No cards.
 | 2026-10-25 | CF-08 | In Progress → Testing | Repeated staged check passed; staged audit found 25 application files, 9 tests, 5 root files, no unexpected paths or credential-shaped content; 79 tests passed. |
 | 2026-10-25 | CF-08 | Testing → In Progress | First honest local milestone commit `82664faf4a75ad0fda77e4174e67503dd635f34b` succeeded; immediate working tree was clean. No older stage commits were fabricated. |
 | 2026-10-25 | CF-08 | In Progress → To Do (BLOCKED) | User selected an existing empty GitHub repository but its URL was not supplied. `gh auth status` reports invalid login, and no remote exists. Push and remote SHA verification remain unrun; CF-08 acceptance is incomplete. |
+| 2026-10-25 | CF-08 | To Do (BLOCKED) → In Progress | User supplied the full existing repository URL. Initial sandboxed `git ls-remote` failed DNS; approved network retry returned no refs, confirming an empty destination. |
+| 2026-10-25 | CF-08 | In Progress → Testing | Added the supplied URL as `origin` without replacing a remote; `git push -u origin main` succeeded despite invalid GitHub CLI login. No token was placed in the URL. |
+| 2026-10-25 | CF-08 | Testing → Done | Remote `refs/heads/main` returned `9f0a97e994ba5102459eea757758eeed867a5239`, equal to local HEAD at verification. The pushed tree contained the 39 reviewed project files and no ignored runtime data. Separate final checkpoint commit/push is recorded in the terminal summary. |

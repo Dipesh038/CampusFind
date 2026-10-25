@@ -1,9 +1,10 @@
 # CampusFind project status
 
-Updated (UTC): 2026-10-25T06:46:35Z
+Updated (UTC): 2026-10-25T06:50:27Z
 Repository: `/Users/dipeshkunwar/Desktop/CampusFind`
 Git branch: `main`; local application milestone commit `82664faf4a75ad0fda77e4174e67503dd635f34b`
-Working tree: the reviewed application milestone is committed locally; final HEAD and working-tree state after the separate checkpoint commit are reported in the terminal summary. No remote is configured or push claimed.
+Remote: `origin` → `https://github.com/Dipesh038/CampusFind.git`
+Working tree: the reviewed application milestone and prior checkpoint were pushed; final HEAD and working-tree state after this separate checkpoint commit are reported in the terminal summary.
 
 ## Technical stages
 
@@ -16,7 +17,7 @@ Working tree: the reviewed application milestone is committed locally; final HEA
 | CF-05 | Claims and administrator review | DONE | 71 tests, controlled concurrency/rollback checks, and disposable live HTTP workflow passed |
 | CF-06 | Responsive interface and visual review | DONE | 75 tests, dependency check, and required three-width browser review passed |
 | CF-07 | Integration, security and health review | DONE | 79 tests passed in original and clean Python 3.12 environments; DB-aware health verified |
-| CF-08 | Repository milestone and GitHub setup | BLOCKED | Local review and milestone commit complete; repository URL and working GitHub authentication needed for push and remote verification |
+| CF-08 | Repository milestone and GitHub setup | DONE | Reviewed 39 files; first local commit and GitHub push completed; remote main SHA matched local main |
 | CF-09 | Test coverage | NOT_STARTED | Scope awaits stage prompt |
 | CF-10 | Deployment preparation | NOT_STARTED | Scope awaits stage prompt |
 | CF-11 | CI/CD | NOT_STARTED | Scope awaits stage prompt |
@@ -26,14 +27,13 @@ Planning labels for CF-09 through CF-12 are provisional. CF-01 through CF-07 hav
 
 ## CF-08 checkpoint
 
-- **Status:** BLOCKED. Local review and milestone commit are complete. Remote setup, push, and remote SHA verification need the existing empty repository URL and working GitHub authentication. The user selected the existing-repository option but has not yet provided its URL.
+- **Status:** DONE. The user supplied the existing empty repository URL after the earlier blocked checkpoint. Local review, first commit, push, and remote SHA verification are complete.
 - **Local review:** The candidate set is application Python, schema, Jinja templates and CSS; nine unittest files; `requirements.txt`, `.gitignore`, `README.md`, `PROJECT_STATUS.md`, and `KANBAN.md`. Generated `__pycache__` files, `.venv`, and `instance/campusfind.sqlite` are present locally and ignored. A scan of 39 candidate text files found no private-key headers, GitHub-token shapes, or AWS-key shapes; three credential-assignment patterns were fictional password constants in tests. No unrelated user file was deleted.
 - **Kanban review:** The board has Backlog, To Do, In Progress, Testing, and Done, with WIP limit 2 and dated actual transitions. Recorded CF-01 Python installation and CF-02 email-normalization issues show Testing/rework and acceptance only after checks passed. The CF-12 infrastructure blocker remains in Backlog. No historical transition was reconstructed.
 - **Verification and local commit:** `.venv/bin/python --version` returned Python 3.12.15. `.venv/bin/python -m pip check` returned `No broken requirements found.`; `.venv/bin/python -m unittest discover -s tests -v` ran 79 tests in 3.289s and returned `OK`. An explicit `git add --` of the 39 intended paths first failed because the sandbox could not write `.git/index.lock`; its approved retry succeeded. `git status --short --branch` showed only 39 staged additions. `git diff --cached --stat` showed 39 files and 4,178 inserted lines. The first `git diff --cached --check` found four tracker trailing-space lines; these were removed, explicitly restaged, and the repeated check exited 0 with no output. An index-content audit found 25 application files, 9 tests, and 5 root files, with no unexpected path, binary content, or credential-shaped content. The authorized `git commit -m "Implement CampusFind application through integration testing"` succeeded as local commit `82664faf4a75ad0fda77e4174e67503dd635f34b`. The immediate post-commit `git status --short --branch` returned `## main` (clean at that point).
-- **Remote state:** `git remote -v` returned no remote before and after the local commit. `gh auth status` reported an invalid current GitHub CLI login; no credentials were printed or changed. The user chose to use an existing empty repository, but the URL has not arrived. `git remote add origin`, `git push -u origin main`, and remote SHA verification are **NOT RUN** because the destination is unknown and authentication is unavailable. No repository URL or visibility was invented.
-- **Manual steps needed:** Provide the actual empty CampusFind repository HTTPS or SSH URL. Reauthenticate locally with `gh auth login -h github.com` or configure working GitHub SSH authentication; do not send passwords or tokens in chat. After that, the remote can be inspected, added without overwriting an existing origin, pushed without force, and checked against local `main`.
-- **Checkpoint commit:** This tracker update may be committed separately. Its final HEAD and working-tree state must be reported from Git after that commit; the application milestone SHA above identifies the reviewed source without a self-referencing SHA loop.
-- **Next stage:** Finish the remote portion of CF-08 after the URL and authentication are available. CF-09 requires a separate prompt after CF-08 completion. No CI or deployment work was started.
+- **Remote verification:** The user supplied `https://github.com/Dipesh038/CampusFind.git`. The first sandboxed `GIT_TERMINAL_PROMPT=0 git ls-remote https://github.com/Dipesh038/CampusFind.git` failed because `github.com` could not resolve; the approved network retry exited 0 with no refs, confirming an empty destination. `git remote add origin https://github.com/Dipesh038/CampusFind.git` succeeded without replacing an existing remote. `GIT_TERMINAL_PROMPT=0 git push -u origin main` succeeded and set upstream tracking. `GIT_TERMINAL_PROMPT=0 git ls-remote origin refs/heads/main` returned `9f0a97e994ba5102459eea757758eeed867a5239`, matching local `git rev-parse HEAD` at that checkpoint. `git status --short --branch` returned `## main...origin/main` with no file changes. `git ls-tree -r --name-only HEAD` listed the same 39 reviewed files and no virtual environment, runtime database, cache, or secret file. `gh auth status` still reported an invalid CLI login, but Git transport authentication worked; no token was printed or stored in the remote URL.
+- **Manual checks pending:** None for CF-08 acceptance. The separate final tracker commit and remote verification are reported by their actual SHA in the terminal summary to avoid a self-referencing SHA loop.
+- **Next stage:** CF-09 only after a separate prompt. No CI or deployment work was started.
 
 ## CF-07 checkpoint
 
