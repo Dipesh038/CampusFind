@@ -111,4 +111,71 @@ Start from the current `main` branch. For a focused change, create a branch with
 
 GitHub Actions runs the CI workflow for pull requests targeting `main` and pushes to `main`. The Ubuntu test job uses Python 3.12, installs the pinned `requirements.txt`, runs `pip check`, and runs the unittest suite with isolated temporary databases. A package job runs only after a successful test job on a push to `main`. It checks out the same tested commit, builds a source archive from an explicit allowlist, verifies its contents and `RELEASE_SHA` metadata, then uploads a seven-day artifact named with the commit SHA. The app needs no npm or frontend build step.
 
-Open the repository's **Actions** tab to inspect a failed job and its step logs. For a successful `main` run, open that run's **Artifacts** section to download the `campusfind-<commit-sha>` artifact; it contains a `.tar.gz` source archive. The workflow tests and packages source only. It does not deploy, configure a server, or make the app available in production.
+Open the repository's **Actions** tab to inspect a failed job and its step logs. For a successful `main` run, open that run's **Artifacts** section to download the `campusfind-<commit-sha>` artifact; it contains a `.tar.gz` source archive. On pushes to `main`, the deployment job waits for both jobs, downloads that run's commit-named artifact, verifies it against the checked-out commit, and deploys to the existing PythonAnywhere application. Pull requests run tests only; package and deploy are skipped.
+
+## PythonAnywhere production and continuous deployment
+
+The selected managed host is [CampusFind on PythonAnywhere](https://zainmalik.pythonanywhere.com). The earlier Ubuntu/systemd/Nginx/SSH plan is abandoned; its two unchanged, untracked templates were removed after verifying their original hashes. The board preserves that preparation history. PythonAnywhere manages HTTPS and the WSGI web worker; no public Flask development server, standalone Gunicorn service, custom domain, or public deployment webhook is used.
+
+| Location | Role |
+| --- | --- |
+| `/home/ZainMalik/CampusFind` | Initial source retained intact for recovery; existing Python 3.12 `.venv` remains here |
+| `/home/ZainMalik/campusfind-releases/<tested-sha>/` | Complete immutable source uploaded from a verified CI artifact |
+| `/home/ZainMalik/campusfind-data/campusfind.sqlite` | Persistent SQLite database; deployments and rollbacks never copy, delete, initialize, or restore it |
+| `/home/ZainMalik/.config/campusfind.env` | Protected production environment; never downloaded, uploaded, overwritten, or printed by deployment |
+| `/var/www/zainmalik_pythonanywhere_com_wsgi.py` | Small activation loader; points to one complete release and loads the protected environment |
+| `/home/ZainMalik/.config/campusfind-deploy/` | Previous release metadata and a recovery WSGI loader containing paths and commit ID only |
+
+Keep the environment file owner-readable only (0600), with its parent 0700; keep the database directory private and writable by the account for SQLite journals. Check these permissions privately in the PythonAnywhere console. Do not map those directories to public static URLs. The only static mapping should be `/static/` to the active release's `campusfind/static` directory. The unchanged existing virtualenv is reused **only while `requirements.txt` stays byte-for-byte unchanged**. Dependency changes stop deployment and need a separately prepared, verified Python 3.12 virtualenv; this workflow cannot install packages through a console API.
+
+The environment file supplies `APP_ENV`, `SECRET_KEY`, `DATABASE`, and the initial `RELEASE_SHA`. The managed WSGI loader validates production mode and the expected persistent database path. It accepts ordinary `KEY=value` lines, optional `export`, shell quoting and comments, without executing shell code or interpolating variables. Configure secrets privately on the host. For immutable releases, the loader sets the runtime `RELEASE_SHA` to verified artifact metadata; the protected file remains unchanged. The application rejects weak secrets and relative database paths, and startup asserts debug is off and Secure cookies are enabled.
+
+### GitHub setup
+
+Create a token in PythonAnywhere **Account → API token → Create token**. Enter it directly into GitHub **repository Settings → Secrets and variables → Actions → New repository secret**. Never paste it into chat, an editor, source, screenshots, logs, command arguments, or trackers.
+
+| Kind | Name |
+| --- | --- |
+| Repository Actions secret | `PYTHONANYWHERE_API_TOKEN` |
+| Repository Actions variable | `PYTHONANYWHERE_USERNAME` |
+| Repository Actions variable | `PYTHONANYWHERE_HOST` |
+| Repository Actions variable | `PYTHONANYWHERE_DOMAIN` |
+| Repository Actions variable | `APP_URL` |
+
+Set the non-secret variables to the selected account, official API host, domain and HTTPS URL. Values are configured in repository settings; the secret is never read back. The token grants broad account API access, so restrict repository write access and review changes to deployment code/workflows. No extra deployment action or application webhook is installed.
+
+### Job sequence and activation
+
+1. `test` installs the pinned dependencies on Python 3.12, runs `pip check`, then all unit/integration/release-safety tests.
+2. On a push to `main`, `package` runs only after tests pass. It creates exactly 26 allowlisted source files plus `RELEASE_SHA`; runtime data, `.git`, tests, `.venv`, caches and secrets are excluded.
+3. `deploy` requires both successful jobs and runs only on pushes to `main`. A shared production concurrency group with cancellation disabled prevents overlapping deployment jobs. Official GitHub actions are pinned to full release SHAs; token permissions stay `contents: read`.
+4. The job checks out the exact workflow SHA with Git history and downloads only this run's matching artifact. `deploy/pythonanywhere.py` rejects unexpected paths, duplicates, links, extra members, wrong metadata, or source bytes differing from `git show <tested-sha>:<path>`.
+5. Before writing source, it requires healthy production reporting a previous SHA, Python 3.12, the expected virtualenv, Force HTTPS, and the expected static mapping. If Force HTTPS is disabled, it enables that setting, reloads and verifies the existing release before changing source. It verifies all previous source bytes against the reported Git commit and unchanged requirements. An unknown manual production modification stops deployment for review.
+6. All 27 files upload to a new SHA-specific directory and are downloaded back for byte verification. The previous source remains untouched. Only after this completes are the secret-free recovery loader/metadata saved, the WSGI loader replaced, the configured source/static paths updated, and the existing web app reloaded.
+7. Bounded HTTPS health checks require HTTP 200 JSON with `status=ok` and `release` equal to the tested SHA. An upload, reload, API, or health failure exits nonzero. API errors expose only status codes; response bodies and authorization headers are never logged. Calls are spaced below the documented rate limit, with per-request timeouts and an overall job timeout.
+8. On activation/health failure, the job restores the exact previous WSGI loader held in memory, previous source/static configuration, reloads, checks the previous release's health, and still fails the job. Staging failures leave the active source alone. Runner termination, job timeout, network loss, or a failed recovery can require manual recovery; do not assume success from a requested reload.
+
+The [official PythonAnywhere API](https://help.pythonanywhere.com/pages/API/) documents multipart file uploads (`POST`, 200/201 success), file reads, web-app configuration and static mapping updates, and reload. The [official deployment example](https://help.pythonanywhere.com/pages/IntegratingWithPythonAnywhere/) describes uploading source, WSGI and static routes before reloading. These operations support the managed-host design without relying on SSH or remote console execution. Their actual availability on this free account is confirmed only by successful authenticated operations, not by a reload request alone.
+
+### Manual deployment and recovery
+
+For deployment outside CD, choose a successful main Actions run and its exact SHA. Download its matching artifact, never copy the working tree or whichever main happens to be newest. If expired, obtain a new successful package for the intended commit. Verify the exact 27 regular-file allowlist, `RELEASE_SHA`, and each source byte against that commit before upload. Use PythonAnywhere Files to upload the source into a new SHA-specific directory. Preserve the initial tree, old release directories, virtualenv, persistent database and protected environment. Check unchanged requirements, then point the WSGI loader/source/static mapping at the complete release and click **Reload** in the Web tab. Verify health, homepage and the known fictional report; never initialize or replace the production database as part of code deployment.
+
+After a CD activation failure, inspect the failed GitHub Actions deployment step first. Do not paste raw environment files or production logs into issues. If automatic recovery is unconfirmed:
+
+1. In PythonAnywhere Files, inspect `.config/campusfind-deploy/previous-release.json` for the previous SHA and retained source/static paths. The file contains no credentials.
+2. Copy the **contents** of `.config/campusfind-deploy/previous-wsgi.py` into `/var/www/zainmalik_pythonanywhere_com_wsgi.py` using the host's editor. It contains no secret values and reads the existing protected environment file. Do not edit that environment file or database.
+3. In Web, restore the source directory and `/static/` mapping recorded in the recovery metadata. Keep the existing Python 3.12 virtualenv selected and Force HTTPS enabled. Click **Reload**.
+4. Confirm `/health` reports the previous SHA, the homepage loads over trusted HTTPS, and the known fictional report is still present. Record the failed run and recovery result. Do not delete newer real records or restore a database backup to roll back code.
+
+If the runner stopped before recovery metadata was saved, the previous source and WSGI remain the starting point; inspect the Web settings and Actions step before making changes. Recovery does not repair schema migrations; this workflow never performs one. Old code may be incompatible with a future schema change, which needs its own release plan.
+
+Rollback behavior is covered by simulated-host tests for failed staging, failed new health, restored old health and failed recovery. A successful first deployment alone does **not** prove live automatic rollback; the project tracker records whether an actual live failure/recovery was exercised.
+
+Free PythonAnywhere web apps [expire after one month](https://help.pythonanywhere.com/pages/FreeAccountsFeatures/). Log in before expiry and click **Run until 1 month from today** on the Web tab; automatic CI reloads do not replace this manual renewal. Check the displayed expiry date regularly and manage disk quota before retaining many releases. Never remove the active release, the previous recovery release, the shared virtualenv or persistent data during cleanup.
+
+### Production acceptance
+
+Record HTTP 200 for the HTTPS homepage and JSON health, its exact release SHA, Force HTTPS redirect and host setting, debug-off startup, Secure/HttpOnly/SameSite cookie flags, fictional registration/login/report creation, and the **same report** surviving both a PythonAnywhere Reload and a subsequent automatic deployment. Inspect file permissions and static mappings privately. Report secret/database exclusion from Git separately from runtime checks. Do not mark CF-10 complete until these live checks pass, or CF-11 complete until a real main push automatically deploys its exact tested SHA.
+
+Next stage: **CF-12**, only after a separate stage prompt. Do not start it automatically.

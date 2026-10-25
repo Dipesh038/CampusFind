@@ -1,15 +1,13 @@
 # CampusFind Kanban
 
-Updated (UTC): 2026-10-25T06:59:06Z
-**In Progress WIP limit: 2**. Current WIP: 0.
+Updated (UTC): 2026-10-25T12:05:00Z
+**In Progress WIP limit: 2**. Current WIP: 1.
 
 ## Backlog
 
 | Card | Provisional work | Acceptance criteria |
 | --- | --- | --- |
-| CF-10 | Deployment preparation | Defined in its stage prompt; Ubuntu, Nginx, systemd, HTTPS, persistent SQLite |
-| CF-11 | CI/CD | Defined in its stage prompt; GitHub Actions and fixed Python 3.12 |
-| CF-12 | Production release (BLOCKED: infrastructure absent) | Defined in its stage prompt; infrastructure-dependent checks |
+| CF-12 | Production release (NOT_STARTED) | PythonAnywhere now exists; await separate stage prompt |
 
 These are planning labels, not permission to begin later stages.
 
@@ -19,13 +17,15 @@ No cards.
 
 ## In Progress
 
-No cards.
+| Card | Work | Acceptance criteria |
+| --- | --- | --- |
+| CF-11 | PythonAnywhere CI/CD | Passing PR and real main test/package/deploy run; exact live SHA and visible change; data preserved; failing-test PR/restoration; documented recovery and limitations |
 
 ## Testing
 
 | Card | Work | Acceptance criteria |
 | --- | --- | --- |
-| CF-09 | GitHub Actions test and source package workflow | 79 local tests and archive checks; PR #1 test job passed; merge is blocked by unavailable authenticated GitHub merge access; main jobs and artifact remain pending |
+| CF-10 | Existing PythonAnywhere deployment | HTTPS home/health, registration/login/cookies and fictional report verified; pending Force HTTPS, Reload persistence and debug-off acceptance |
 
 ## Done
 
@@ -39,6 +39,7 @@ No cards.
 | CF-06 | DONE | Responsive plain-CSS pages, role navigation, shared errors, accessible forms; `pip check`, 75 tests, and Brave visual review at 375/768/1440px, including keyboard, no-JavaScript, long-text, and handover checks passed |
 | CF-07 | DONE | Existing security/transaction tests mapped; real-CSRF full journey and cross-app persistence passed; DB-aware JSON health and production checks passed; 79 tests and `pip check` passed in original and clean Python 3.12 environments |
 | CF-08 | DONE | 39 intended files reviewed and committed; empty supplied GitHub repository confirmed; `main` pushed; remote SHA matched local main; branch workflow documented |
+| CF-09 | DONE | PR #1 merged as `46f30f1`; main run 40187944747 test and package succeeded; downloaded artifact has exactly 27 regular allowlisted members, correct release SHA, and 26 source files matching the merged commit byte for byte; local 79 tests and dependency check passed |
 
 ## Actual transitions and review notes
 
@@ -95,3 +96,8 @@ No cards.
 | 2026-10-25 | CF-09 | In Progress → Testing | Added pinned official-action workflow and CI README. Local `pip check` and 79 unittests passed; Ruby parsed job/trigger structure; extracted package script verified 27 archive members and rejected a mismatched SHA. Temporary archive removed. Remote PR and Actions evidence still pending. |
 | 2026-10-25 | CF-09 | Testing review | PR [#1](https://github.com/Dipesh038/CampusFind/pull/1) opened from `feature/cf09-ci` at `2aa0d8ee9cf22a4b05d1f915130b97fad039a218`; [PR Actions run](https://github.com/Dipesh038/CampusFind/actions/runs/40171124589) passed the test job, with package correctly skipped for the PR event. |
 | 2026-10-25 | CF-09 | Merge blocked | GitHub merge API returned 403 `Resource not accessible by integration`; the available Chrome session is signed out. Base main remains `d1b3d90aac86bc4c641f062adf4404ec11b77c74`. Merge PR #1, then verify the main run and its artifact. |
+| 2026-10-25 | CF-09 | Testing → Done | Approved GitHub CLI merge resolved prior access blocker; PR #1 merged as `46f30f1d861bde8e17e9ec13ef7b6d03e76e2d01`. Push-to-main run 40187944747 passed both jobs. Downloaded artifact passed exact member, release SHA, and committed-source byte comparison checks. Local 79 tests and dependency check passed; existing homepage edits preserved. CF-10 remains unstarted. |
+| 2026-10-25 | CF-10 | Backlog → In Progress | Inspected status, board, README, app production configuration, CI allowlist and actual Git state. Preserved existing CF-09 tracker edits and homepage formatting; no staging or Git mutation. Asked the four infrastructure questions. |
+| 2026-10-25 | CF-10 | In Progress → To Do (BLOCKED) | User answered no existing server. Prepared only systemd service, Nginx template, and README setup/acceptance guidance locally. No Ubuntu/SSH/hostname target, certificate, live URL or deployed SHA. 79 tests, pip check, Gunicorn configuration load and trusted/untrusted proxy-scheme checks passed. Nginx/systemd native checks and all real HTTPS/persistence checks NOT RUN; CF-10 remains out of Done. No commit, push, merge, GitHub deployment secrets, or automatic deployment. Next stage CF-11 only after CF-10 acceptance and separate prompt. |
+| 2026-10-25 | CF-10 | To Do (BLOCKED) → Testing | User supplied existing working PythonAnywhere deployment and selected managed hosting. Verified HTTPS home/health at `46f30f1`, registration/login/cookie flags, and fictional report `/items/3`. HTTP initially lacked HTTPS redirect. Ubuntu plan abandoned; exact original hashes confirmed for both untracked templates before removal. History retained here. Reload persistence and remaining checks pending. |
+| 2026-10-25 | CF-11 | Backlog → In Progress | Explicit stage prompt received. SQLite closing fix passed 79 tests, PR #2 tests, then merged as `4a6366e`; main run 40190705536 passed test/package. User configured API token directly in GitHub; four non-secret variables set. Prepared official-API isolated-release deployment and simulated failure/recovery tests; 88 tests pass. No live deployment or automatic rollback success claimed yet. |
