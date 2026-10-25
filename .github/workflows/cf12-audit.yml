@@ -1,0 +1,74 @@
+name: CF-12 read-only production audit
+on:
+  push:
+    branches: [audit/cf12-live]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Audit public HTTPS without credentials or data writes
+        run: |
+          python3 - <<'PY'
+          import json
+          import time
+          from http.cookies import SimpleCookie
+          from urllib.error import HTTPError
+          from urllib.request import HTTPRedirectHandler, Request, build_opener
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, *args):
+                  return None
+          opener = build_opener(NoRedirect())
+          base = 'https://zainmalik.pythonanywhere.com'
+          def get(path, secure=True):
+              url = (base if secure else base.replace('https:', 'http:')) + path
+              for attempt in range(3):
+                  try:
+                      request = Request(url, headers={'Cache-Control': 'no-cache'})
+                      try:
+                          response = opener.open(request, timeout=15)
+                      except HTTPError as error:
+                          response = error
+                      with response:
+                          return response.code, response.headers, response.read()
+                  except OSError:
+                      if attempt == 2:
+                          raise
+                      time.sleep(2)
+          code, headers, body = get('/health')
+          assert code == 200 and headers.get_content_type() == 'application/json'
+          expected = '0d2a848a91ba9605dfd2a072e47837f6bae6041a'
+          assert json.loads(body) == {'status': 'ok', 'release': expected}
+          print('PASS health HTTP 200 JSON; deployed SHA ' + expected)
+          for path in ['/', '/items', '/items?type=found&status=open', '/auth/login', '/auth/register', '/static/style.css']:
+              code, headers, body = get(path)
+              assert code == 200, (path, code)
+              if path == '/':
+                  assert b'Helping belongings get home.' in body
+              if path == '/auth/login':
+                  cookie = SimpleCookie()
+                  for value in headers.get_all('Set-Cookie', []):
+                      cookie.load(value)
+                  session = cookie['session']
+                  assert session['secure'] and session['httponly'] and session['samesite'] == 'Lax'
+                  print('PASS production session cookie Secure/HttpOnly/SameSite=Lax (values not logged)')
+          print('PASS public homepage, browse/filter, login/register GETs and CSS HTTP 200')
+          code, headers, body = get('/items/3')
+          assert code == 200 and b'CF11 fictional persistence check b0349c9a' in body
+          print('PASS original fictional report /items/3 persists after both CF-11 deployments')
+          code, headers, body = get('/', secure=False)
+          assert code in (301, 302, 307, 308) and headers['Location'] == base + '/'
+          print('PASS HTTP redirects to controlled HTTPS hostname')
+          for path in ['/admin', '/claims/mine', '/items/mine', '/items/new']:
+              code, headers, body = get(path)
+              assert code == 302 and headers['Location'].endswith('/auth/login')
+          print('PASS anonymous private pages redirect to login')
+          for path in ['/campusfind.sqlite', '/campusfind.env', '/.env', '/.git/config', '/RELEASE_SHA', '/missing-cf12-audit']:
+              code, headers, body = get(path)
+              assert code == 404, (path, code)
+              assert b'Traceback (most recent call last)' not in body
+          print('PASS database/environment/Git/release paths are not publicly served; generic 404')
+          print('AUDIT PASSED: GET requests only; no reload, form submission, API token, secret read or production record change.')
+          PY
