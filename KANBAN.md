@@ -1,13 +1,12 @@
 # CampusFind Kanban
 
-Updated (UTC): 2026-10-25T06:50:27Z
+Updated (UTC): 2026-10-25T06:59:06Z
 **In Progress WIP limit: 2**. Current WIP: 0.
 
 ## Backlog
 
 | Card | Provisional work | Acceptance criteria |
 | --- | --- | --- |
-| CF-09 | Test coverage | Defined in its stage prompt; unittest acceptance checks |
 | CF-10 | Deployment preparation | Defined in its stage prompt; Ubuntu, Nginx, systemd, HTTPS, persistent SQLite |
 | CF-11 | CI/CD | Defined in its stage prompt; GitHub Actions and fixed Python 3.12 |
 | CF-12 | Production release (BLOCKED: infrastructure absent) | Defined in its stage prompt; infrastructure-dependent checks |
@@ -24,7 +23,9 @@ No cards.
 
 ## Testing
 
-No cards.
+| Card | Work | Acceptance criteria |
+| --- | --- | --- |
+| CF-09 | GitHub Actions test and source package workflow | 79 local tests and archive checks; PR #1 test job passed; merge is blocked by unavailable authenticated GitHub merge access; main jobs and artifact remain pending |
 
 ## Done
 
@@ -90,3 +91,7 @@ No cards.
 | 2026-10-25 | CF-08 | To Do (BLOCKED) → In Progress | User supplied the full existing repository URL. Initial sandboxed `git ls-remote` failed DNS; approved network retry returned no refs, confirming an empty destination. |
 | 2026-10-25 | CF-08 | In Progress → Testing | Added the supplied URL as `origin` without replacing a remote; `git push -u origin main` succeeded despite invalid GitHub CLI login. No token was placed in the URL. |
 | 2026-10-25 | CF-08 | Testing → Done | Remote `refs/heads/main` returned `9f0a97e994ba5102459eea757758eeed867a5239`, equal to local HEAD at verification. The pushed tree contained the 39 reviewed project files and no ignored runtime data. Separate final checkpoint commit/push is recorded in the terminal summary. |
+| 2026-10-25 | CF-09 | Backlog → In Progress | Read stage prompt, trackers, README, requirements, tests, and Git state. Local and remote main matched at `d1b3d90aac86bc4c641f062adf4404ec11b77c74`; created `feature/cf09-ci` from clean main. |
+| 2026-10-25 | CF-09 | In Progress → Testing | Added pinned official-action workflow and CI README. Local `pip check` and 79 unittests passed; Ruby parsed job/trigger structure; extracted package script verified 27 archive members and rejected a mismatched SHA. Temporary archive removed. Remote PR and Actions evidence still pending. |
+| 2026-10-25 | CF-09 | Testing review | PR [#1](https://github.com/Dipesh038/CampusFind/pull/1) opened from `feature/cf09-ci` at `2aa0d8ee9cf22a4b05d1f915130b97fad039a218`; [PR Actions run](https://github.com/Dipesh038/CampusFind/actions/runs/40171124589) passed the test job, with package correctly skipped for the PR event. |
+| 2026-10-25 | CF-09 | Merge blocked | GitHub merge API returned 403 `Resource not accessible by integration`; the available Chrome session is signed out. Base main remains `d1b3d90aac86bc4c641f062adf4404ec11b77c74`. Merge PR #1, then verify the main run and its artifact. |

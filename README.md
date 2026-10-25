@@ -106,3 +106,9 @@ In a browser's responsive view, check **375px, 768px, and 1440px** on the homepa
 ## Branch workflow
 
 Start from the current `main` branch. For a focused change, create a branch with `git checkout -b <name>`, make the change, and run the relevant tests. Stage the intended files, commit, and push that branch. Open a pull request for review. After CI is introduced in CF-09, merge only after its checks pass. Do not put local databases, secrets, caches, or `.venv` in a commit.
+
+## Continuous integration
+
+GitHub Actions runs the CI workflow for pull requests targeting `main` and pushes to `main`. The Ubuntu test job uses Python 3.12, installs the pinned `requirements.txt`, runs `pip check`, and runs the unittest suite with isolated temporary databases. A package job runs only after a successful test job on a push to `main`. It checks out the same tested commit, builds a source archive from an explicit allowlist, verifies its contents and `RELEASE_SHA` metadata, then uploads a seven-day artifact named with the commit SHA. The app needs no npm or frontend build step.
+
+Open the repository's **Actions** tab to inspect a failed job and its step logs. For a successful `main` run, open that run's **Artifacts** section to download the `campusfind-<commit-sha>` artifact; it contains a `.tar.gz` source archive. The workflow tests and packages source only. It does not deploy, configure a server, or make the app available in production.

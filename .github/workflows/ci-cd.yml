@@ -1,0 +1,129 @@
+name: CampusFind CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out tested commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Show Python version
+        run: python --version
+      - name: Install pinned dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Check installed dependencies
+        run: python -m pip check
+      - name: Run unit and integration tests
+        run: python -m unittest discover -s tests -v
+
+  package:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out tested commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Package and verify tested source
+        env:
+          TESTED_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import io
+          import os
+          import subprocess
+          import tarfile
+          from pathlib import Path
+
+          source_files = (
+              "campusfind/__init__.py",
+              "campusfind/admin.py",
+              "campusfind/auth.py",
+              "campusfind/claims.py",
+              "campusfind/db.py",
+              "campusfind/forms.py",
+              "campusfind/items.py",
+              "campusfind/schema.sql",
+              "campusfind/static/style.css",
+              "campusfind/templates/admin/dashboard.html",
+              "campusfind/templates/auth/login.html",
+              "campusfind/templates/auth/register.html",
+              "campusfind/templates/base.html",
+              "campusfind/templates/claims/mine.html",
+              "campusfind/templates/errors/400.html",
+              "campusfind/templates/errors/403.html",
+              "campusfind/templates/errors/404.html",
+              "campusfind/templates/errors/409.html",
+              "campusfind/templates/errors/500.html",
+              "campusfind/templates/errors/503.html",
+              "campusfind/templates/index.html",
+              "campusfind/templates/items/detail.html",
+              "campusfind/templates/items/form.html",
+              "campusfind/templates/items/list.html",
+              "campusfind/templates/items/mine.html",
+              "requirements.txt",
+          )
+          tested_sha = os.environ["TESTED_SHA"]
+          checked_out_sha = subprocess.check_output(
+              ["git", "rev-parse", "HEAD"], text=True
+          ).strip()
+          if checked_out_sha != tested_sha:
+              raise SystemExit("Checked-out commit differs from the tested commit")
+
+          archive_path = Path(f"campusfind-{tested_sha}.tar.gz")
+          metadata = (tested_sha + "\n").encode("ascii")
+          with tarfile.open(archive_path, "w:gz") as archive:
+              for name in source_files:
+                  path = Path(name)
+                  if not path.is_file() or path.is_symlink():
+                      raise SystemExit(f"Missing or unsafe package source: {name}")
+                  archive.add(path, arcname=name, recursive=False)
+              info = tarfile.TarInfo("RELEASE_SHA")
+              info.size = len(metadata)
+              info.mode = 0o644
+              archive.addfile(info, io.BytesIO(metadata))
+
+          expected = set(source_files) | {"RELEASE_SHA"}
+          with tarfile.open(archive_path, "r:gz") as archive:
+              members = archive.getmembers()
+              names = [member.name for member in members]
+              if len(names) != len(expected) or set(names) != expected:
+                  raise SystemExit("Archive contents differ from the source allowlist")
+              if any(not member.isfile() for member in members):
+                  raise SystemExit("Archive contains a non-file member")
+              if archive.extractfile("RELEASE_SHA").read() != metadata:
+                  raise SystemExit("Release metadata does not match the tested commit")
+          print(f"Verified {archive_path}: {len(expected)} allowlisted files")
+          PY
+      - name: Upload release archive
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: campusfind-${{ github.sha }}
+          path: campusfind-${{ github.sha }}.tar.gz
+          if-no-files-found: error
+          retention-days: 7
