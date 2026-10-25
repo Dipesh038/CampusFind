@@ -1,0 +1,34 @@
+name: CF-11 read-only live evidence
+on:
+  push:
+    branches: [verify/cf11-live]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify exact release, visible footer, and retained fictional report
+        run: |
+          python3 - <<'PY'
+          import json
+          import time
+          from urllib.request import urlopen
+          base = 'https://zainmalik.pythonanywhere.com'
+          def get(path):
+              for attempt in range(3):
+                  try:
+                      with urlopen(base + path, timeout=20) as response:
+                          assert response.status == 200
+                          return response.read().decode()
+                  except OSError:
+                      if attempt == 2:
+                          raise
+                      time.sleep(3)
+          health = json.loads(get('/health'))
+          assert health == {'status': 'ok', 'release': 'fd13999e8a7319ac49be320907a7a064f8841083'}
+          assert 'Helping belongings get home.' in get('/')
+          assert 'CF11 fictional persistence check b0349c9a' in get('/items/3')
+          print('PASS: exact deployed SHA, new visible footer, and original fictional report after automatic deployment.')
+          PY
