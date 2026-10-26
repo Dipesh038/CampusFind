@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    container_name: campusfind
+    ports:
+      - "5000:5000"
+    environment:
+      - APP_ENV=development
+      - DATABASE=/app/instance/campusfind.sqlite
+    volumes:
+      - campusfind_data:/app/instance
+    restart: unless-stopped
+
+volumes:
+  campusfind_data:

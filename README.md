@@ -25,6 +25,50 @@ In VS Code, open the Command Palette with **Shift-Command-P**, run **Python: Sel
 
 Set `APP_ENV=production`, a strong `SECRET_KEY` through the process environment, and an **absolute** `DATABASE` path in persistent storage for production. Create that storage directory with suitable permissions before running `init-db`. A production secret needs at least 32 UTF-8 bytes and 16 distinct characters; the application rejects missing or weak values and debug mode. The development default secret must never be used in production.
 
+## Docker setup
+
+You can build and run CampusFind in a container using Docker or Docker Compose without installing Python or dependencies directly on your host machine.
+
+### Using Docker Compose (Recommended)
+
+From the project root:
+
+```sh
+docker compose up --build
+```
+
+To run in detached background mode:
+
+```sh
+docker compose up --build -d
+```
+
+- Open `http://localhost:5000/` or `http://localhost:5000/health`.
+- The SQLite database schema is automatically initialized on startup and persisted across container restarts using the named Docker volume `campusfind_data`.
+- To stop the container: `docker compose down`.
+
+### Using the Docker CLI Directly
+
+1. Build the Docker image:
+   ```sh
+   docker build -t campusfind .
+   ```
+
+2. Run the container with a persistent volume for the database:
+   ```sh
+   docker run -d -p 5000:5000 -v campusfind_data:/app/instance --name campusfind-app campusfind
+   ```
+
+3. View container logs:
+   ```sh
+   docker logs -f campusfind-app
+   ```
+
+4. Stop and remove the container:
+   ```sh
+   docker stop campusfind-app && docker rm campusfind-app
+   ```
+
 ## Accounts and administrator setup
 
 Visit `/auth/register` to create a student account, then `/auth/login` to sign in. Registration trims names, lowercases and trims email addresses, requires a 12–128 character password, and stores a Werkzeug password hash. Passwords are never trimmed. The simple email format check does **not** verify that the person owns the address. Duplicate addresses show a form error. Logout is a CSRF-protected **POST** form in the navigation; a GET request cannot log someone out. Missing or invalid CSRF tokens return HTTP 400 with a generic message.
